@@ -2,14 +2,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Lista de Gastos</title>
+    <title>Monthly</title>
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-    <h1>Lista de Gastos</h1>
+    <h1>Fixed Cost List</h1>
     <ul>
-        {% for gasto in gastos %}
-            <li>{{ gasto.concepto }} - {{ gasto.monto }}</li>
+        {% for fixed_cost in get_fixed_cost %}
+            <li>{{ fixed_cost.name }} - {{ fixed_cost.price }}</li>
         {% endfor %}
     </ul>
 </body>

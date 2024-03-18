@@ -1,36 +1,23 @@
 from django.shortcuts import render, redirect
 
-from .forms import GastoForm, IngresoForm
-from .models import Gasto, Ingreso
+from .forms import FixedCostForm
+from .models import FixedCost
 
 
-def lista_gastos(request):
-    gastos = Gasto.objects.all()
-    return render(request, 'lista_gastos.html', {'gastos': gastos})
+def get_fixed_cost(request):
+    form = FixedCostForm()
+    return render(request, 'monthly.html', {'form': form})
 
 
-def agregar_gasto(request):
+def set_fixed_cost(request):
     if request.method == 'POST':
-        form = GastoForm(request.POST)
+        form = FixedCostForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('lista_gastos')
-    else:
-        form = GastoForm()
-    return render(request, 'agregar_gasto.html', {'form': form})
+            return redirect('fixed_cost_list')
+    return render(request, 'monthly.html', {'form': form})
 
 
-def lista_ingresos(request):
-    ingresos = Ingreso.objects.all()
-    return render(request, 'lista_ingresos.html', {'ingresos': ingresos})
-
-
-def agregar_ingreso(request):
-    if request.method == 'POST':
-        form = IngresoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('lista_ingresos')
-    else:
-        form = IngresoForm()
-    return render(request, 'agregar_ingreso.html', {'form': form})
+def fixed_cost_list(request):
+    fixed_cost = FixedCost.objects.all()
+    return render(request, 'monthly.html', {'Fixed cost': fixed_cost})

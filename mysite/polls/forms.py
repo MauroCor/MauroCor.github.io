@@ -1,10 +1,13 @@
 from django import forms
-from .models import Gasto, Ingreso
 
-class GastoForm(forms.ModelForm):
+from .models import Ingreso, FixedCost
+
+
+class FixedCostForm(forms.ModelForm):
     class Meta:
-        model = Gasto
-        fields = ['fecha', 'concepto', 'monto']
+        model = FixedCost
+        fields = ['month', 'name', 'price']
+
 
 class IngresoForm(forms.ModelForm):
     class Meta:
