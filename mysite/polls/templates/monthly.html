@@ -8,9 +8,14 @@
 <body>
     <h1>Fixed Cost List</h1>
     <ul>
-        {% for fixed_cost in get_fixed_cost %}
-            <li>{{ fixed_cost.name }} - {{ fixed_cost.price }}</li>
+        {% for fixed_cost in fixed_costs %}
+            <li>{{ fixed_cost.name }} - {{ fixed_cost.price }} - {{ fixed_cost.month }}</li>
         {% endfor %}
     </ul>
+    <form action="{% url 'set_fixed_cost' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Crear Gasto Fijo</button>
+    </form>
 </body>
 </html>
