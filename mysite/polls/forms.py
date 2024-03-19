@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Ingreso, FixedCost
+from .models import Earning, FixedCost
 
 
 class FixedCostForm(forms.ModelForm):
@@ -9,7 +9,7 @@ class FixedCostForm(forms.ModelForm):
         fields = ['month', 'name', 'price']
 
 
-class IngresoForm(forms.ModelForm):
+class EarningForm(forms.ModelForm):
     class Meta:
-        model = Ingreso
-        fields = ['fecha', 'concepto', 'monto']
+        model = Earning
+        fields = ['month', 'name', 'price']

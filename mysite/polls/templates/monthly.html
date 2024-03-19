@@ -15,7 +15,62 @@
     <form action="{% url 'set_fixed_cost' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Crear Gasto Fijo</button>
+        <button type="submit">Set fixed cost</button>
     </form>
+    <h1>Earning List</h1>
+    <ul>
+        {% for earning in earnings %}
+            <li>{{ earning.name }} - {{ earning.price }} - {{ earning.month }}</li>
+        {% endfor %}
+    </ul>
+    <form action="{% url 'set_earning' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Set Earning</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Total Outflow</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for outflow in outflow_by_month %}
+            <tr>
+                <td>{{ outflow.month }}</td>
+                <td>{{ outflow.total_price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Total Inflow</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inflow in inflow_by_month %}
+            <tr>
+                <td>{{ inflow.month }}</td>
+                <td>{{ inflow.total_price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for balance in balance_by_month %}
+            <tr>
+                <td>{{ balance.month }}</td>
+                <td>{{ balance.balance }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
