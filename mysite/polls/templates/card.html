@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Monthly</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <h1>Card Spending List</h1>
+    <ul>
+        {% for card_spend in card_spends %}
+            <li>{{ card_spend.name }} - {{ card_spend.price }} - {{ card_spend.fees }} - {{ card_spend.init_month }}</li>
+        {% endfor %}
+    </ul>
+    <form action="{% url 'set_card_spend' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Set card spend</button>
+    </form>
+    <h1>Installment Payments List</h1>
+    <ul>
+        {% for installment_payment in installment_payments %}
+            <li>{{ installment_payment.name }} - {{ installment_payment.fee_value }} - {{ installment_payment.month }}</li>
+        {% endfor %}
+    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for card_spend in total_card_spend_by_month %}
+            <tr>
+                <td>{{ card_spend.month }}</td>
+                <td>{{ card_spend.total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
