@@ -34,5 +34,4 @@ class InstallmentPayment(models.Model):
                 card_spend=card_spend,
                 name=f"{card_spend.name} ({month - card_spend.init_month + 1}/{card_spend.fees})",
                 fee_value=card_spend.price / card_spend.fees,
-                month=month
-            )
+                month=month)

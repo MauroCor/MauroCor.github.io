@@ -9,7 +9,7 @@
     <h1>Fixed Cost List</h1>
     <ul>
         {% for fixed_cost in fixed_costs %}
-            <li>{{ fixed_cost.name }} - {{ fixed_cost.price }} - {{ fixed_cost.month }}</li>
+            <li>{{ fixed_cost.name }} - {{ fixed_cost.price }} - {{ fixed_cost.month }} <a href="{% url 'delete_fixed_cost' fixed_cost.id %}">(x)</a></li>
         {% endfor %}
     </ul>
     <form action="{% url 'set_fixed_cost' %}" method="post">
@@ -20,7 +20,7 @@
     <h1>Earning List</h1>
     <ul>
         {% for earning in earnings %}
-            <li>{{ earning.name }} - {{ earning.price }} - {{ earning.month }}</li>
+            <li>{{ earning.name }} - {{ earning.price }} - {{ earning.month }} <a href="{% url 'delete_earning' earning.id %}">(x)</a></li>
         {% endfor %}
     </ul>
     <form action="{% url 'set_earning' %}" method="post">

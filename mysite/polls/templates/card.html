@@ -9,7 +9,7 @@
     <h1>Card Spending List</h1>
     <ul>
         {% for card_spend in card_spends %}
-            <li>{{ card_spend.name }} - {{ card_spend.price }} - {{ card_spend.fees }} - {{ card_spend.init_month }}</li>
+            <li>{{ card_spend.name }} - {{ card_spend.price }} - {{ card_spend.fees }} - {{ card_spend.init_month }} <a href="{% url 'delete_card_spend' card_spend.id %}">(x)</a></li>
         {% endfor %}
     </ul>
     <form action="{% url 'set_card_spend' %}" method="post">

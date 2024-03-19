@@ -114,7 +114,7 @@ def get_card_balance():
     total_card_spend_by_month = []
     for month in range(1, 13):
         total_by_month = InstallmentPayment.objects.filter(month=month).aggregate(total_by_month=Sum('fee_value'))[
-                               'total_by_month'] or 0
+                             'total_by_month'] or 0
         total_card_spend_by_month.append({'month': month, 'total': total_by_month})
     return total_card_spend_by_month
 
@@ -132,3 +132,21 @@ def gets_card(request):
                   {'card_spends': card_spends,
                    'installment_payments': installment_payments,
                    'total_card_spend_by_month': total_card_spend_by_month})
+
+
+def delete_fixed_cost(request, fixed_cost_id):
+    fixed_cost = FixedCost.objects.get(pk=fixed_cost_id)
+    fixed_cost.delete()
+    return redirect(gets_monthly)
+
+
+def delete_earning(request, earning_id):
+    earning = Earning.objects.get(pk=earning_id)
+    earning.delete()
+    return redirect(gets_monthly)
+
+
+def delete_card_spend(request, card_spend_id):
+    card_spend = CardSpend.objects.get(pk=card_spend_id)
+    card_spend.delete()
+    return redirect(gets_card)
