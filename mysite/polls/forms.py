@@ -1,12 +1,21 @@
 from django import forms
-from .models import Gasto, Ingreso
 
-class GastoForm(forms.ModelForm):
-    class Meta:
-        model = Gasto
-        fields = ['fecha', 'concepto', 'monto']
+from .models import Earning, FixedCost, CardSpend
 
-class IngresoForm(forms.ModelForm):
+
+class FixedCostForm(forms.ModelForm):
     class Meta:
-        model = Ingreso
-        fields = ['fecha', 'concepto', 'monto']
+        model = FixedCost
+        fields = ['month', 'name', 'price']
+
+
+class EarningForm(forms.ModelForm):
+    class Meta:
+        model = Earning
+        fields = ['month', 'name', 'price']
+
+
+class CardSpendForm(forms.ModelForm):
+    class Meta:
+        model = CardSpend
+        fields = ['name', 'price', 'fees', 'init_month']
