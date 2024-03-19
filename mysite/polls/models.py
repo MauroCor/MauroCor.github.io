@@ -28,7 +28,7 @@ class InstallmentPayment(models.Model):
     month = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(12)])
 
     @staticmethod
-    def generate_instalments(card_spend):
+    def generate_installments_payments(card_spend):
         for month in range(card_spend.init_month, card_spend.init_month + card_spend.fees):
             InstallmentPayment.objects.create(
                 card_spend=card_spend,

@@ -103,7 +103,7 @@ def set_card_spend(request):
         form = CardSpendForm(request.POST)
         if form.is_valid():
             card_spend = form.save()
-            InstallmentPayment.generate_instalments(card_spend)
+            InstallmentPayment.generate_installments_payments(card_spend)
             return redirect(gets_card)
     else:
         form = CardSpendForm()
