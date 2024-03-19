@@ -102,8 +102,8 @@ def set_card_spend(request):
     if request.method == 'POST':
         form = CardSpendForm(request.POST)
         if form.is_valid():
-            card_spend = form.save()  # Guarda el CardSpend
-            InstallmentPayment.generate_instalments(card_spend)  # Genera los pagos a plazos
+            card_spend = form.save()
+            InstallmentPayment.generate_instalments(card_spend)
             return redirect(gets_card)
     else:
         form = CardSpendForm()
