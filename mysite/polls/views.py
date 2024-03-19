@@ -122,6 +122,12 @@ def get_card_balance():
 def gets_card(request):
     card_spends, installment_payments = get_card_spend()
     total_card_spend_by_month = get_card_balance()
+    # Set CreditCard(FixedCost)=total_card_spend_by_month
+    for month_total in total_card_spend_by_month:
+        FixedCost.objects.update_or_create(
+            month=month_total['month'],
+            name='CreditCard',
+            defaults={'price': month_total['total']})
     return render(request, 'card.html',
                   {'card_spends': card_spends,
                    'installment_payments': installment_payments,
