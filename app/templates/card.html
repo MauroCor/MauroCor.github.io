@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Monthly</title>
-    <link rel="stylesheet" href="/static/css/styles.css">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block content %}
     <h1>Card Spending List</h1>
     <ul>
         {% for card_spend in card_spends %}
@@ -39,5 +34,4 @@
             {% endfor %}
         </tbody>
     </table>
-</body>
-</html>
+{% endblock %}

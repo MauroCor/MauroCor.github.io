@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="table-responsive">
+        <table class="table table-striped" id="fixed-columns-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>January</th>
+                    <th>February</th>
+                    <th>March</th>
+                    <th>April</th>
+                    <th>May</th>
+                    <th>June</th>
+                    <th>July</th>
+                    <th>August</th>
+                    <th>September</th>
+                    <th>October</th>
+                    <th>November</th>
+                    <th>December</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Earning section -->
+                {% for earning_name in unique_earnings_names %}
+                <tr>
+                    <td class="cell-earning-name">{{ earning_name }}</td>
+                    {% for month in months %}
+                        <td class="cell-earning-value">
+                            {% for earning in earnings %}
+                                {% if earning.name == earning_name and earning.month == month %}
+                                    {{ earning.price }}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    {% endfor %}
+                    <td><a href="{% url 'delete_earning' earning_name %}">❌</a></td>
+                </tr>
+                {% endfor %}
+                <!-- end Earning section -->
+                <!-- Inflow section -->
+                <tr>
+                    <td>Inflow</td>
+                    {% for month in months %}
+                        <td>
+                            {% for inflow in monthly_inflow %}
+                                {% if inflow.month == month %}
+                                    {{ inflow.result }}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    {% endfor %}
+                </tr>
+                <!-- end Inflow section -->
+                <!-- FixedCost section -->
+                {% for fixed_cost_name in unique_fixed_cost_names %}
+                <tr>
+                    <td class="cell-fixed-cost-name">{{ fixed_cost_name }}</td>
+                    {% for month in months %}
+                        <td class="cell-fixed-cost-value">
+                            {% for fixed_cost in fixed_costs %}
+                                {% if fixed_cost.name == fixed_cost_name and fixed_cost.month == month %}
+                                    {{ fixed_cost.price }}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    {% endfor %}
+                    <td><a href="{% url 'delete_fixed_cost' fixed_cost_name %}">❌</a></td>
+                </tr>
+                {% endfor %}
+                <!-- end FixedCost section -->
+                <!-- Outflow section -->
+                <tr>
+                    <td>Outflow</td>
+                    {% for month in months %}
+                        <td>
+                            {% for outflow in monthly_outflow %}
+                                {% if outflow.month == month %}
+                                    {{ outflow.result }}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    {% endfor %}
+                </tr>
+                <!-- end Outflow section -->
+                <!-- Balance section -->
+                <tr>
+                    <td>Balance</td>
+                    {% for month in months %}
+                        <td>
+                            {% for balance in monthly_balance %}
+                                {% if balance.month == month %}
+                                    {{ balance.result }}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    {% endfor %}
+                </tr>
+                <!-- end Balance section -->
+            </tbody>
+        </table>
+    </div>
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <form action="{% url 'set_fixed_cost' %}" method="post" class="mr-2">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Set fixed cost</button>
+        </form>
+        <form action="{% url 'set_earning' %}" method="post" class="ml-2">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Set Earning</button>
+        </form>
+    </div>
+{% endblock %}

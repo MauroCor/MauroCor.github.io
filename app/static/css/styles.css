@@ -1,0 +1,30 @@
+table td:first-child:not(.cell-earning-name):not(.cell-fixed-cost-name) {
+    background-color: white;
+    opacity: 1;
+}
+
+th:first-child {
+    background-color: white;
+    opacity: 1;
+}
+
+tr, th, td {
+    border: 1px solid #dddddd;
+    text-align: center;
+}
+
+.cell-earning-name {
+    background-color: lightgreen;
+}
+
+.cell-earning-value {
+    background-color: lightgreen;
+}
+
+.cell-fixed-cost-name {
+    background-color: lightcoral;
+}
+
+.cell-fixed-cost-value {
+    background-color: lightcoral;
+}
