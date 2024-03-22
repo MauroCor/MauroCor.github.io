@@ -7,8 +7,8 @@ from .models import FixedCost, Earning, CardSpend, InstallmentPayment
 
 def get_fixed_costs():
     fixed_costs = FixedCost.objects.all()
-    outflow_by_month = FixedCost.objects.values('month').annotate(total_price=Sum('price'))
-    return fixed_costs, outflow_by_month
+    monthly_outflow = FixedCost.objects.values('month').annotate(result=Sum('price'))
+    return fixed_costs, monthly_outflow
 
 
 def set_fixed_cost(request):
@@ -40,8 +40,8 @@ def set_fixed_cost(request):
 
 def get_earnings():
     earnings = Earning.objects.all()
-    inflow_by_month = Earning.objects.values('month').annotate(total_price=Sum('price'))
-    return earnings, inflow_by_month
+    monthly_inflow = Earning.objects.values('month').annotate(result=Sum('price'))
+    return earnings, monthly_inflow
 
 
 def set_earning(request):
@@ -72,26 +72,32 @@ def set_earning(request):
 
 
 def get_balance():
-    balance_by_month = []
+    monthly_balance = []
     for month in range(1, 13):
-        outflow_total = FixedCost.objects.filter(month=month).aggregate(total_outflow=Sum('price'))[
-                            'total_outflow'] or 0
-        inflow_total = Earning.objects.filter(month=month).aggregate(total_inflow=Sum('price'))['total_inflow'] or 0
-        balance = inflow_total - outflow_total
-        balance_by_month.append({'month': month, 'balance': balance})
-    return balance_by_month
+        monthly_outflow = FixedCost.objects.filter(month=month).aggregate(monthly_outflow=Sum('price'))[
+                            'monthly_outflow'] or 0
+        monthly_inflow = Earning.objects.filter(month=month).aggregate(monthly_inflow=Sum('price'))['monthly_inflow'] or 0
+        balance = monthly_inflow - monthly_outflow
+        monthly_balance.append({'month': month, 'result': balance})
+    return monthly_balance
 
 
 def gets_monthly(request):
-    fixed_costs, outflow_by_month = get_fixed_costs()
-    earnings, inflow_by_month = get_earnings()
-    balance_by_month = get_balance()
+    fixed_costs, monthly_outflow = get_fixed_costs()
+    earnings, monthly_inflow = get_earnings()
+    monthly_balance = get_balance()
+    unique_fixed_cost_names = set(fixed_cost.name for fixed_cost in fixed_costs)
+    unique_earnings_names = set(earnings.name for earnings in earnings)
+    months = list(range(1, 13))
     return render(request, 'monthly.html',
-                  {'fixed_costs': fixed_costs,
-                   'outflow_by_month': outflow_by_month,
+                  {'months': months,
+                   'fixed_costs': fixed_costs,
+                   'monthly_outflow': monthly_outflow,
+                   'unique_fixed_cost_names': unique_fixed_cost_names,
                    'earnings': earnings,
-                   'inflow_by_month': inflow_by_month,
-                   'balance_by_month': balance_by_month})
+                   'monthly_inflow': monthly_inflow,
+                   'unique_earnings_names': unique_earnings_names,
+                   'monthly_balance': monthly_balance})
 
 
 def get_card_spend():
@@ -134,15 +140,13 @@ def gets_card(request):
                    'total_card_spend_by_month': total_card_spend_by_month})
 
 
-def delete_fixed_cost(request, fixed_cost_id):
-    fixed_cost = FixedCost.objects.get(pk=fixed_cost_id)
-    fixed_cost.delete()
+def delete_fixed_cost(request, fixed_cost_name):
+    FixedCost.objects.filter(name=fixed_cost_name).delete()
     return redirect(gets_monthly)
 
 
-def delete_earning(request, earning_id):
-    earning = Earning.objects.get(pk=earning_id)
-    earning.delete()
+def delete_earning(request, earning_name):
+    Earning.objects.filter(name=earning_name).delete()
     return redirect(gets_monthly)
 
 
@@ -150,3 +154,7 @@ def delete_card_spend(request, card_spend_id):
     card_spend = CardSpend.objects.get(pk=card_spend_id)
     card_spend.delete()
     return redirect(gets_card)
+
+
+def home(request):
+    return render(request, 'home.html')
