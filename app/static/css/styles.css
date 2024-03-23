@@ -1,6 +1,9 @@
-table td:first-child:not(.cell-earning-name):not(.cell-fixed-cost-name) {
-    background-color: white;
-    opacity: 1;
+/* table section */
+.table-custom td {
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-right: 10px;
+    padding-left: 10px;
 }
 
 th:first-child {
@@ -13,18 +16,58 @@ tr, th, td {
     text-align: center;
 }
 
+/* inflow section */
 .cell-earning-name {
     background-color: lightgreen;
 }
 
 .cell-earning-value {
-    background-color: lightgreen;
+    color: green;
 }
 
+.cell-inflow-name {
+    background-color: #F0F8FF;
+    font-weight: bold;
+}
+
+.cell-inflow-value {
+    background-color: #F0F8FF;
+    font-weight: bold;
+    color: green;
+}
+
+/* outflow section */
 .cell-fixed-cost-name {
     background-color: lightcoral;
 }
 
 .cell-fixed-cost-value {
-    background-color: lightcoral;
+    color: #DC143C;
+}
+
+.cell-outflow-name {
+    background-color: #F0F8FF;
+    font-weight: bold;
+}
+
+.cell-outflow-value {
+    background-color: #F0F8FF;
+    font-weight: bold;
+    color: #DC143C;
+}
+
+.cell-balance-name {
+    background-color: #F0E68C;
+    font-weight: bold;
+}
+
+.cell-balance-value {
+    background-color: #FFFACD;
+    font-weight: bold;
+}
+
+/* forms section */
+#fixed-cost-form,
+#earning-form {
+    display: none;
 }

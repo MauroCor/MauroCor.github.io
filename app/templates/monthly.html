@@ -2,7 +2,7 @@
 
 {% block content %}
     <div class="table-responsive">
-        <table class="table table-striped" id="fixed-columns-table">
+        <table class="table table-striped table-custom" id="fixed-columns-table">
             <thead>
                 <tr>
                     <th></th>
@@ -34,15 +34,14 @@
                             {% endfor %}
                         </td>
                     {% endfor %}
-                    <td><a href="{% url 'delete_earning' earning_name %}">❌</a></td>
+                    <td class="delete-button"><a href="{% url 'delete_earning' earning_name %}">❌</a></td>
                 </tr>
                 {% endfor %}
-                <!-- end Earning section -->
                 <!-- Inflow section -->
                 <tr>
-                    <td>Inflow</td>
+                    <td class="cell-inflow-name">Inflow</td>
                     {% for month in months %}
-                        <td>
+                        <td class="cell-inflow-value">
                             {% for inflow in monthly_inflow %}
                                 {% if inflow.month == month %}
                                     {{ inflow.result }}
@@ -51,7 +50,6 @@
                         </td>
                     {% endfor %}
                 </tr>
-                <!-- end Inflow section -->
                 <!-- FixedCost section -->
                 {% for fixed_cost_name in unique_fixed_cost_names %}
                 <tr>
@@ -65,15 +63,14 @@
                             {% endfor %}
                         </td>
                     {% endfor %}
-                    <td><a href="{% url 'delete_fixed_cost' fixed_cost_name %}">❌</a></td>
+                    <td class="delete-button"><a href="{% url 'delete_fixed_cost' fixed_cost_name %}">❌</a></td>
                 </tr>
                 {% endfor %}
-                <!-- end FixedCost section -->
                 <!-- Outflow section -->
                 <tr>
-                    <td>Outflow</td>
+                    <td class="cell-outflow-name">Outflow</td>
                     {% for month in months %}
-                        <td>
+                        <td class="cell-outflow-value">
                             {% for outflow in monthly_outflow %}
                                 {% if outflow.month == month %}
                                     {{ outflow.result }}
@@ -82,12 +79,11 @@
                         </td>
                     {% endfor %}
                 </tr>
-                <!-- end Outflow section -->
                 <!-- Balance section -->
                 <tr>
-                    <td>Balance</td>
+                    <td class="cell-balance-name">Balance</td>
                     {% for month in months %}
-                        <td>
+                        <td class="cell-balance-value">
                             {% for balance in monthly_balance %}
                                 {% if balance.month == month %}
                                     {{ balance.result }}
@@ -96,20 +92,43 @@
                         </td>
                     {% endfor %}
                 </tr>
-                <!-- end Balance section -->
             </tbody>
         </table>
     </div>
-    <div class="btn-group" role="group" aria-label="Basic example">
-        <form action="{% url 'set_fixed_cost' %}" method="post" class="mr-2">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Set fixed cost</button>
-        </form>
-        <form action="{% url 'set_earning' %}" method="post" class="ml-2">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Set Earning</button>
-        </form>
-    </div>
+    <button id="fixed-cost-button" type="submit" class="btn btn-primary">Set fixed cost</button>
+    <button id="earning-button" type="submit" class="btn btn-primary">Set earning</button>
+    <form id="fixed-cost-form" action="{% url 'set_fixed_cost' %}" method="post" class="mr-2">
+        {% csrf_token %}
+        <div>
+            <label for="fixed_month">Month:</label>
+            <input type="number" id="fixed_month" name="month" required>
+        </div>
+        <div>
+            <label for="fixed_name">Name:</label>
+            <input type="text" id="fixed_name" name="name" maxlength="20" required>
+        </div>
+        <div>
+            <label for="fixed_price">Price:</label>
+            <input type="number" id="fixed_price" name="price" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Set</button>
+        <button id="cancel-cost-btn" type="submit" class="btn btn-primary">Cancel</button>
+    </form>
+    <form id="earning-form" action="{% url 'set_earning' %}" method="post" class="ml-2">
+        {% csrf_token %}
+        <div>
+            <label for="earning_month">Month:</label>
+            <input type="number" id="earning_month" name="month" required>
+        </div>
+        <div>
+            <label for="earning_name">Name:</label>
+            <input type="text" id="earning_name" name="name" maxlength="20" required>
+        </div>
+        <div>
+            <label for="earning_price">Price:</label>
+            <input type="number" id="earning_price" name="price" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Set</button>
+        <button id="cancel-earning-btn" type="submit" class="btn btn-primary">Cancel</button>
+    </form>
 {% endblock %}
