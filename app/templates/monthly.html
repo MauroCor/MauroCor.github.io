@@ -1,134 +1,176 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="table-responsive">
-        <table class="table table-striped table-custom" id="fixed-columns-table">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>January</th>
-                    <th>February</th>
-                    <th>March</th>
-                    <th>April</th>
-                    <th>May</th>
-                    <th>June</th>
-                    <th>July</th>
-                    <th>August</th>
-                    <th>September</th>
-                    <th>October</th>
-                    <th>November</th>
-                    <th>December</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Earning section -->
-                {% for earning_name in unique_earnings_names %}
-                <tr>
-                    <td class="cell-earning-name">{{ earning_name }}</td>
-                    {% for month in months %}
-                        <td class="cell-earning-value">
-                            {% for earning in earnings %}
-                                {% if earning.name == earning_name and earning.month == month %}
-                                    {{ earning.price }}
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                    {% endfor %}
-                    <td class="delete-button"><a href="{% url 'delete_earning' earning_name %}">❌</a></td>
-                </tr>
+<div class="table-responsive">
+    <table class="table table-striped table-custom" id="fixed-columns-table">
+        <thead>
+        <tr>
+            <th></th>
+            <th>January</th>
+            <th>February</th>
+            <th>March</th>
+            <th>April</th>
+            <th>May</th>
+            <th>June</th>
+            <th>July</th>
+            <th>August</th>
+            <th>September</th>
+            <th>October</th>
+            <th>November</th>
+            <th>December</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Earning section -->
+        {% for earning_name in unique_earnings_names %}
+        <tr>
+            <td class="cell-earning-name">{{ earning_name }}</td>
+            {% for month in months %}
+            <td class="cell-earning-value">
+                {% for earning in earnings %}
+                {% if earning.name == earning_name and earning.month == month %}
+                {{ earning.price }}
+                {% endif %}
                 {% endfor %}
-                <!-- Inflow section -->
-                <tr>
-                    <td class="cell-inflow-name">Inflow</td>
-                    {% for month in months %}
-                        <td class="cell-inflow-value">
-                            {% for inflow in monthly_inflow %}
-                                {% if inflow.month == month %}
-                                    {{ inflow.result }}
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                    {% endfor %}
-                </tr>
-                <!-- FixedCost section -->
+            </td>
+            {% endfor %}
+            <td class="delete-button"><a href="{% url 'delete_earning' earning_name %}">❌</a></td>
+        </tr>
+        {% endfor %}
+        <!-- Inflow section -->
+        <tr>
+            <td class="cell-inflow-name">Inflow</td>
+            {% for month in months %}
+            <td class="cell-inflow-value">
+                {% for inflow in monthly_inflow %}
+                {% if inflow.month == month %}
+                {{ inflow.result }}
+                {% endif %}
+                {% endfor %}
+            </td>
+            {% endfor %}
+        </tr>
+        <!-- FixedCost section -->
+        {% for fixed_cost_name in unique_fixed_cost_names %}
+        <tr>
+            <td class="cell-fixed-cost-name">{{ fixed_cost_name }}</td>
+            {% for month in months %}
+            <td class="cell-fixed-cost-value">
+                {% for fixed_cost in fixed_costs %}
+                {% if fixed_cost.name == fixed_cost_name and fixed_cost.month == month %}
+                {{ fixed_cost.price }}
+                {% endif %}
+                {% endfor %}
+            </td>
+            {% endfor %}
+            <td class="delete-button"><a href="{% url 'delete_fixed_cost' fixed_cost_name %}">❌</a></td>
+        </tr>
+        {% endfor %}
+        <!-- Outflow section -->
+        <tr>
+            <td class="cell-outflow-name">Outflow</td>
+            {% for month in months %}
+            <td class="cell-outflow-value">
+                {% for outflow in monthly_outflow %}
+                {% if outflow.month == month %}
+                {{ outflow.result }}
+                {% endif %}
+                {% endfor %}
+            </td>
+            {% endfor %}
+        </tr>
+        <!-- Balance section -->
+        <tr>
+            <td class="cell-balance-name">Balance</td>
+            {% for month in months %}
+            <td class="cell-balance-value">
+                {% for balance in monthly_balance %}
+                {% if balance.month == month %}
+                {{ balance.result }}
+                {% endif %}
+                {% endfor %}
+            </td>
+            {% endfor %}
+        </tr>
+        </tbody>
+    </table>
+</div>
+<button id="fixed-cost-button" type="submit" class="btn btn-primary">Set fixed cost</button>
+<button id="earning-button" type="submit" class="btn btn-primary">Set earning</button>
+<form id="fixed-cost-form" action="{% url 'set_fixed_cost' %}" method="post" class="mr-2">
+    {% csrf_token %}
+    <div>
+        <div>
+           <label>Fixed costs:</label>
+            <div class="name_buttons">
                 {% for fixed_cost_name in unique_fixed_cost_names %}
-                <tr>
-                    <td class="cell-fixed-cost-name">{{ fixed_cost_name }}</td>
-                    {% for month in months %}
-                        <td class="cell-fixed-cost-value">
-                            {% for fixed_cost in fixed_costs %}
-                                {% if fixed_cost.name == fixed_cost_name and fixed_cost.month == month %}
-                                    {{ fixed_cost.price }}
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                    {% endfor %}
-                    <td class="delete-button"><a href="{% url 'delete_fixed_cost' fixed_cost_name %}">❌</a></td>
-                </tr>
+                    <button type="button" value="{{ fixed_cost_name }}" onclick="setNameValue(this)">{{ fixed_cost_name }}</button>
                 {% endfor %}
-                <!-- Outflow section -->
-                <tr>
-                    <td class="cell-outflow-name">Outflow</td>
-                    {% for month in months %}
-                        <td class="cell-outflow-value">
-                            {% for outflow in monthly_outflow %}
-                                {% if outflow.month == month %}
-                                    {{ outflow.result }}
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                    {% endfor %}
-                </tr>
-                <!-- Balance section -->
-                <tr>
-                    <td class="cell-balance-name">Balance</td>
-                    {% for month in months %}
-                        <td class="cell-balance-value">
-                            {% for balance in monthly_balance %}
-                                {% if balance.month == month %}
-                                    {{ balance.result }}
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                    {% endfor %}
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <button id="fixed-cost-button" type="submit" class="btn btn-primary">Set fixed cost</button>
-    <button id="earning-button" type="submit" class="btn btn-primary">Set earning</button>
-    <form id="fixed-cost-form" action="{% url 'set_fixed_cost' %}" method="post" class="mr-2">
-        {% csrf_token %}
-        <div>
-            <label for="fixed_month">Month:</label>
-            <input type="number" id="fixed_month" name="month" required>
-        </div>
-        <div>
-            <label for="fixed_name">Name:</label>
+            </div>
+            <label for="fixed_name">New fixed cost:</label>
             <input type="text" id="fixed_name" name="name" maxlength="20" required>
         </div>
-        <div>
-            <label for="fixed_price">Price:</label>
-            <input type="number" id="fixed_price" name="price" required>
+        <label>Month:</label>
+        <div class="month_buttons">
+            <button type="button" value="1" onclick="setMonthValue(this)">Jan</button>
+            <button type="button" value="2" onclick="setMonthValue(this)">Feb</button>
+            <button type="button" value="3" onclick="setMonthValue(this)">Mar</button>
+            <button type="button" value="4" onclick="setMonthValue(this)">Apr</button>
+            <button type="button" value="5" onclick="setMonthValue(this)">May</button>
+            <button type="button" value="6" onclick="setMonthValue(this)">Jun</button>
+            <button type="button" value="7" onclick="setMonthValue(this)">Jul</button>
+            <button type="button" value="8" onclick="setMonthValue(this)">Aug</button>
+            <button type="button" value="9" onclick="setMonthValue(this)">Sep</button>
+            <button type="button" value="10" onclick="setMonthValue(this)">Oct</button>
+            <button type="button" value="11" onclick="setMonthValue(this)">Nov</button>
+            <button type="button" value="12" onclick="setMonthValue(this)">Dec</button>
         </div>
-        <button type="submit" class="btn btn-primary">Set</button>
-        <button id="cancel-cost-btn" type="submit" class="btn btn-primary">Cancel</button>
-    </form>
-    <form id="earning-form" action="{% url 'set_earning' %}" method="post" class="ml-2">
-        {% csrf_token %}
-        <div>
-            <label for="earning_month">Month:</label>
-            <input type="number" id="earning_month" name="month" required>
-        </div>
-        <div>
-            <label for="earning_name">Name:</label>
+        <input type="hidden" id="fixed_month" name="month" required>
+        <span id="cost-month-error" class="error-message"></span>
+    </div>
+    <div>
+        <label for="fixed_price">Price:</label>
+        <input type="number" id="fixed_price" name="price" required>
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin-left: 70px">Set</button>
+    <button id="cancel-cost-btn" type="submit" class="btn btn-primary">Cancel</button>
+</form>
+<form id="earning-form" action="{% url 'set_earning' %}" method="post" class="ml-2">
+    {% csrf_token %}
+    <div>
+         <div>
+            <label>Earnings:</label>
+            <div class="name_buttons">
+                {% for earning_name in unique_earnings_names %}
+                    <button type="button" value="{{ earning_name }}" onclick="setNameValue(this)">{{ earning_name }}</button>
+                {% endfor %}
+            </div>
+            <label for="earning_name">New earning:</label>
             <input type="text" id="earning_name" name="name" maxlength="20" required>
         </div>
-        <div>
-            <label for="earning_price">Price:</label>
-            <input type="number" id="earning_price" name="price" required>
+        <label>Month:</label>
+        <div class="month_buttons">
+            <button type="button" value="1" onclick="setMonthValue(this)">Jan</button>
+            <button type="button" value="2" onclick="setMonthValue(this)">Feb</button>
+            <button type="button" value="3" onclick="setMonthValue(this)">Mar</button>
+            <button type="button" value="4" onclick="setMonthValue(this)">Apr</button>
+            <button type="button" value="5" onclick="setMonthValue(this)">May</button>
+            <button type="button" value="6" onclick="setMonthValue(this)">Jun</button>
+            <button type="button" value="7" onclick="setMonthValue(this)">Jul</button>
+            <button type="button" value="8" onclick="setMonthValue(this)">Aug</button>
+            <button type="button" value="9" onclick="setMonthValue(this)">Sep</button>
+            <button type="button" value="10" onclick="setMonthValue(this)">Oct</button>
+            <button type="button" value="11" onclick="setMonthValue(this)">Nov</button>
+            <button type="button" value="12" onclick="setMonthValue(this)">Dec</button>
         </div>
-        <button type="submit" class="btn btn-primary">Set</button>
-        <button id="cancel-earning-btn" type="submit" class="btn btn-primary">Cancel</button>
-    </form>
+        <input type="hidden" id="earning_month" name="month" required>
+        <span id="earn-month-error" class="error-message"></span>
+    </div>
+    <div>
+        <label for="earning_price">Price:</label>
+        <input type="number" id="earning_price" name="price" required>
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin-left: 70px">Set</button>
+    <button id="cancel-earning-btn" type="submit" class="btn btn-primary">Cancel</button>
+</form>
 {% endblock %}

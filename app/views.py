@@ -30,8 +30,7 @@ def set_fixed_cost(request):
                     FixedCost.objects.update_or_create(
                         month=month,
                         name=new_fixed_cost.name,
-                        price=new_fixed_cost.price
-                    )
+                        price=new_fixed_cost.price)
             return redirect(gets_monthly)
     else:
         form = FixedCostForm()
@@ -63,8 +62,7 @@ def set_earning(request):
                     Earning.objects.update_or_create(
                         month=month,
                         name=new_earning.name,
-                        price=new_earning.price
-                    )
+                        price=new_earning.price)
             return redirect(gets_monthly)
     else:
         form = EarningForm()
