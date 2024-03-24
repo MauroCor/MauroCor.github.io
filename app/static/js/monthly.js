@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function() {
         earningForm.style.display = "none";});
 
     document.getElementById("cancel-cost-btn").addEventListener("click", function() {
+        event.preventDefault();
         fixedCostForm.style.display = "none";});
 
     document.getElementById("earning-button").addEventListener("click", function() {
@@ -14,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
         fixedCostForm.style.display = "none";});
 
     document.getElementById("cancel-earning-btn").addEventListener("click", function() {
+        event.preventDefault();
         earningForm.style.display = "none";});
 
     earningForm.addEventListener("submit", function(event) {
