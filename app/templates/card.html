@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<script src="/static/js/card.js"></script>
+<link rel="stylesheet" href="static/css/card.css">
 <div class="table-responsive">
     <table class="table table-striped table-custom" id="fixed-columns-table">
         <thead>
@@ -24,8 +26,8 @@
         <!-- Card spend section -->
         {% for card_spend in card_spends %}
         <tr>
-            <td class="card-spend-name">{{ card_spend.name }}<span>{{card_spend.price }} / {{ card_spend.fees }}</span>
-            </td>
+            <td class="cell-card-spend-name">{{ card_spend.name }}</td>
+<!-- <span>{{card_spend.price }} / {{ card_spend.fees }}</span> -->
             {% for month in months %}
             <td class="cell-card-spend-value">
                 {% for installment_payment in installment_payments %}
@@ -54,7 +56,7 @@
         </tbody>
     </table>
 </div>
-<button id="fixed-cost-button" type="submit" class="btn btn-primary">Set card spend</button>
+<button id="card-spend-button" type="submit" class="btn btn-primary">Set card spend</button>
 <form id="card-spend-form" action="{% url 'set_card_spend' %}" method="post">
     {% csrf_token %}
     <div>
@@ -62,34 +64,38 @@
             <label for="card_spend_name">Card spend:</label>
             <input type="text" id="card_spend_name" name="name" maxlength="20" required>
         </div>
-        <label for="card_spend_price">Price:</label>
-        <input type="number" id="card_spend_price" name="price" required>
-        <div class="month_buttons">
-            <button type="button" value="1" onclick="setMonthValue(this)">1</button>
-            <button type="button" value="3" onclick="setMonthValue(this)">3</button>
-            <button type="button" value="6" onclick="setMonthValue(this)">6</button>
-            <button type="button" value="9" onclick="setMonthValue(this)">9</button>
-            <button type="button" value="12" onclick="setMonthValue(this)">12</button>
+        <div>
+            <label for="card_spend_price">Price:</label>
+            <input type="number" id="card_spend_price" name="price" required>
         </div>
-        <label for="card_spend_fees">Fees:</label>
-        <input type="text" id="card_spend_fees" name="name" maxlength="20" required>
-        <label>Initial month:</label>
-        <div class="month_buttons">
-            <button type="button" value="1" onclick="setMonthValue(this)">Jan</button>
-            <button type="button" value="2" onclick="setMonthValue(this)">Feb</button>
-            <button type="button" value="3" onclick="setMonthValue(this)">Mar</button>
-            <button type="button" value="4" onclick="setMonthValue(this)">Apr</button>
-            <button type="button" value="5" onclick="setMonthValue(this)">May</button>
-            <button type="button" value="6" onclick="setMonthValue(this)">Jun</button>
-            <button type="button" value="7" onclick="setMonthValue(this)">Jul</button>
-            <button type="button" value="8" onclick="setMonthValue(this)">Aug</button>
-            <button type="button" value="9" onclick="setMonthValue(this)">Sep</button>
-            <button type="button" value="10" onclick="setMonthValue(this)">Oct</button>
-            <button type="button" value="11" onclick="setMonthValue(this)">Nov</button>
-            <button type="button" value="12" onclick="setMonthValue(this)">Dec</button>
+        <div>
+            <div class="input_buttons" style="margin-left: 55px">
+                <button type="button" value="1">1</button>
+                <button type="button" value="3">3</button>
+                <button type="button" value="6">6</button>
+                <button type="button" value="9">9</button>
+                <button type="button" value="12">12</button>
+            </div>
+            <label for="card_spend_fees">Fees:</label>
+            <input type="text" id="card_spend_fees" name="fees" maxlength="20" required>
         </div>
-        <input type="hidden" id="fixed_month" name="month" required>
-        <span id="cost-month-error" class="error-message"></span>
+        <div class="month_buttons">
+            <label>Initial month:</label>
+            <button type="button" value="1">Jan</button>
+            <button type="button" value="2">Feb</button>
+            <button type="button" value="3">Mar</button>
+            <button type="button" value="4">Apr</button>
+            <button type="button" value="5">May</button>
+            <button type="button" value="6">Jun</button>
+            <button type="button" value="7">Jul</button>
+            <button type="button" value="8">Aug</button>
+            <button type="button" value="9">Sep</button>
+            <button type="button" value="10">Oct</button>
+            <button type="button" value="11">Nov</button>
+            <button type="button" value="12">Dec</button>
+            <input type="hidden" id="card_month" name="init_month" required>
+            <span id="card_month_error" class="error-message">Please select a month.</span>
+        </div>
     </div>
     <button type="submit" class="btn btn-primary" style="margin-left: 70px">Set</button>
     <button id="cancel-cost-btn" type="submit" class="btn btn-primary">Cancel</button>

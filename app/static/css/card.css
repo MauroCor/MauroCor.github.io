@@ -6,9 +6,18 @@
     padding-left: 10px;
 }
 
-th:first-child {
+thead th:first-child {
     background-color: white;
     opacity: 1;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+}
+
+tbody td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
 }
 
 tr, th, td {
@@ -16,70 +25,39 @@ tr, th, td {
     text-align: center;
 }
 
-/* inflow section */
-.cell-earning-name {
+/* card-spend section */
+.cell-card-spend-name {
     background-color: lightgreen;
 }
 
-.cell-earning-value {
+.cell-card-spend-value {
     color: green;
 }
 
-.cell-inflow-name {
-    background-color: #F0F8FF;
-    font-weight: bold;
-}
-
-.cell-inflow-value {
-    background-color: #F0F8FF;
-    font-weight: bold;
-    color: green;
-}
-
-/* outflow section */
-.cell-fixed-cost-name {
-    background-color: lightcoral;
-}
-
-.cell-fixed-cost-value {
-    color: #DC143C;
-}
-
-.cell-outflow-name {
-    background-color: #F0F8FF;
-    font-weight: bold;
-}
-
-.cell-outflow-value {
-    background-color: #F0F8FF;
-    font-weight: bold;
-    color: #DC143C;
-}
-
-.cell-balance-name {
+/* total section */
+.cell-total-name {
     background-color: #F0E68C;
     font-weight: bold;
 }
 
-.cell-balance-value {
+.cell-total-value {
     background-color: #FFFACD;
     font-weight: bold;
 }
 
 /* forms section */
-#fixed-cost-form,
-#earning-form {
+#card-spend-form {
     display: none;
 }
 
 .month_buttons button,
-.name_buttons button {
+.fees_buttons button {
     padding: 5px;
     margin: 5px;
 }
 
 .month_buttons button.selected,
-.name_buttons button.selected {
+.fees_buttons button.selected {
     background-color: lightblue;
     color: white;
     font-weight: bold;
@@ -87,11 +65,12 @@ tr, th, td {
 
 .error-message {
     color: red;
+    display: none;
 }
 
 label {
-    margin-top: 5px;
-    margin-bottom: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     font-weight: bold;
     color: #333;
     font-size: 16px;
