@@ -32,6 +32,6 @@ class InstallmentPayment(models.Model):
         for month in range(card_spend.init_month, card_spend.init_month + card_spend.fees):
             InstallmentPayment.objects.create(
                 card_spend=card_spend,
-                name=f"{card_spend.name} ({month - card_spend.init_month + 1}/{card_spend.fees})",
+                name=card_spend.name,
                 fee_value=card_spend.price / card_spend.fees,
                 month=month)

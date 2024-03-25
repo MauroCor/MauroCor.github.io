@@ -73,8 +73,9 @@ def get_balance():
     monthly_balance = []
     for month in range(1, 13):
         monthly_outflow = FixedCost.objects.filter(month=month).aggregate(monthly_outflow=Sum('price'))[
-                            'monthly_outflow'] or 0
-        monthly_inflow = Earning.objects.filter(month=month).aggregate(monthly_inflow=Sum('price'))['monthly_inflow'] or 0
+                              'monthly_outflow'] or 0
+        monthly_inflow = Earning.objects.filter(month=month).aggregate(monthly_inflow=Sum('price'))[
+                             'monthly_inflow'] or 0
         balance = monthly_inflow - monthly_outflow
         monthly_balance.append({'month': month, 'result': balance})
     return monthly_balance
@@ -132,8 +133,10 @@ def gets_card(request):
             month=month_total['month'],
             name='CreditCard',
             defaults={'price': month_total['total']})
+    months = list(range(1, 13))
     return render(request, 'card.html',
-                  {'card_spends': card_spends,
+                  {'months': months,
+                   'card_spends': card_spends,
                    'installment_payments': installment_payments,
                    'total_card_spend_by_month': total_card_spend_by_month})
 
