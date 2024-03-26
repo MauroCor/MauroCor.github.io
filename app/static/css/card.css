@@ -27,11 +27,12 @@ tr, th, td {
 
 /* card-spend section */
 .cell-card-spend-name {
-    background-color: lightgreen;
+    background-color: #C0DCE6;
 }
 
 .cell-card-spend-value {
-    color: green;
+    background-color: #F0F8FF;
+    color: #000000;
 }
 
 /* total section */

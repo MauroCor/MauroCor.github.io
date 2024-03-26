@@ -27,11 +27,11 @@
         {% for card_spend in card_spends %}
         <tr>
             <td class="cell-card-spend-name">{{ card_spend.name }}</td>
-<!-- <span>{{card_spend.price }} / {{ card_spend.fees }}</span> -->
+            <!-- <span>{{card_spend.price }} / {{ card_spend.fees }}</span> -->
             {% for month in months %}
             <td class="cell-card-spend-value">
                 {% for installment_payment in installment_payments %}
-                {% if installment_payment.name == card_spend.name and installment_payment.month == month %}
+                {% if card_spend.name in installment_payment.name and installment_payment.month == month %}
                 {{ installment_payment.fee_value }}
                 {% endif %}
                 {% endfor %}
