@@ -1,37 +1,103 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>Card Spending List</h1>
-    <ul>
-        {% for card_spend in card_spends %}
-            <li>{{ card_spend.name }} - {{ card_spend.price }} - {{ card_spend.fees }} - {{ card_spend.init_month }} <a href="{% url 'delete_card_spend' card_spend.id %}">(x)</a></li>
-        {% endfor %}
-    </ul>
-    <form action="{% url 'set_card_spend' %}" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Set card spend</button>
-    </form>
-    <h1>Installment Payments List</h1>
-    <ul>
-        {% for installment_payment in installment_payments %}
-            <li>{{ installment_payment.name }} - {{ installment_payment.fee_value }} - {{ installment_payment.month }}</li>
-        {% endfor %}
-    </ul>
-    <table>
+<script src="/static/js/card.js"></script>
+<link rel="stylesheet" href="static/css/card.css">
+<div class="table-responsive">
+    <table class="table table-striped table-custom" id="fixed-columns-table">
         <thead>
-            <tr>
-                <th>Month</th>
-                <th>Total</th>
-            </tr>
+        <tr>
+            <th></th>
+            <th>January</th>
+            <th>February</th>
+            <th>March</th>
+            <th>April</th>
+            <th>May</th>
+            <th>June</th>
+            <th>July</th>
+            <th>August</th>
+            <th>September</th>
+            <th>October</th>
+            <th>November</th>
+            <th>December</th>
+        </tr>
         </thead>
         <tbody>
-            {% for card_spend in total_card_spend_by_month %}
-            <tr>
-                <td>{{ card_spend.month }}</td>
-                <td>{{ card_spend.total }}</td>
-            </tr>
+        <!-- Card spend section -->
+        {% for card_spend in card_spends %}
+        <tr>
+            <td class="cell-card-spend-name">{{ card_spend.name }}</td>
+            <!-- <span>{{card_spend.price }} / {{ card_spend.fees }}</span> -->
+            {% for month in months %}
+            <td class="cell-card-spend-value">
+                {% for installment_payment in installment_payments %}
+                {% if card_spend.name in installment_payment.name and installment_payment.month == month %}
+                {{ installment_payment.fee_value }}
+                {% endif %}
+                {% endfor %}
+            </td>
             {% endfor %}
+            <td class="delete-button"><a href="{% url 'delete_card_spend' card_spend.id %}">❌</a></td>
+        </tr>
+        {% endfor %}
+        <!-- Total section -->
+        <tr>
+            <td class="cell-total-name">Total</td>
+            {% for month in months %}
+            <td class="cell-total-value">
+                {% for card_spend in total_card_spend_by_month %}
+                {% if card_spend.month == month %}
+                {{ card_spend.total }}
+                {% endif %}
+                {% endfor %}
+            </td>
+            {% endfor %}
+        </tr>
         </tbody>
     </table>
+</div>
+<button id="card-spend-button" type="submit" class="btn btn-primary">Set card spend</button>
+<form id="card-spend-form" action="{% url 'set_card_spend' %}" method="post">
+    {% csrf_token %}
+    <div>
+        <div>
+            <label for="card_spend_name">Card spend:</label>
+            <input type="text" id="card_spend_name" name="name" maxlength="20" required>
+        </div>
+        <div>
+            <label for="card_spend_price">Price:</label>
+            <input type="number" id="card_spend_price" name="price" required>
+        </div>
+        <div>
+            <div class="input_buttons" style="margin-left: 55px">
+                <button type="button" value="1">1</button>
+                <button type="button" value="3">3</button>
+                <button type="button" value="6">6</button>
+                <button type="button" value="9">9</button>
+                <button type="button" value="12">12</button>
+            </div>
+            <label for="card_spend_fees">Fees:</label>
+            <input type="text" id="card_spend_fees" name="fees" maxlength="20" required>
+        </div>
+        <div class="month_buttons">
+            <label>Initial month:</label>
+            <button type="button" value="1">Jan</button>
+            <button type="button" value="2">Feb</button>
+            <button type="button" value="3">Mar</button>
+            <button type="button" value="4">Apr</button>
+            <button type="button" value="5">May</button>
+            <button type="button" value="6">Jun</button>
+            <button type="button" value="7">Jul</button>
+            <button type="button" value="8">Aug</button>
+            <button type="button" value="9">Sep</button>
+            <button type="button" value="10">Oct</button>
+            <button type="button" value="11">Nov</button>
+            <button type="button" value="12">Dec</button>
+            <input type="hidden" id="card_month" name="init_month" required>
+            <span id="card_month_error" class="error-message">Please select a month.</span>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin-left: 70px">Set</button>
+    <button id="cancel-cost-btn" type="submit" class="btn btn-primary">Cancel</button>
+</form>
 {% endblock %}
