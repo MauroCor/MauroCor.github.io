@@ -12,6 +12,7 @@ thead th:first-child {
     position: sticky;
     left: 0;
     z-index: 1;
+    border-bottom: none;
 }
 
 tbody td:first-child {
@@ -25,9 +26,18 @@ tr, th, td {
     text-align: center;
 }
 
+td.selected {
+    border: 2px solid black;
+}
+
+td.editing {
+    background-color: gainsboro;
+}
+
 /* inflow section */
 .cell-earning-name {
     background-color: lightgreen;
+    min-width: 150px;
 }
 
 .cell-earning-value {

@@ -1,10 +1,13 @@
+from django.db import transaction
 from django.db.models import Sum
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
 from .forms import FixedCostForm, EarningForm, CardSpendForm
 from .models import FixedCost, Earning, CardSpend, InstallmentPayment
 
 
+# Fixed cost section
 def get_fixed_costs():
     fixed_costs = FixedCost.objects.all()
     monthly_outflow = FixedCost.objects.values('month').annotate(result=Sum('price'))
@@ -37,6 +40,26 @@ def set_fixed_cost(request):
     return render(request, 'monthly.html', {'form': form})
 
 
+def edit_fixed_cost(request, old_name, new_name):
+    try:
+        with transaction.atomic():
+            fixed_costs = FixedCost.objects.filter(name=old_name)
+            if FixedCost.objects.filter(name=new_name).exists():
+                return JsonResponse({'success': False, 'err_msg': f"'{new_name}' already exist."}, status=400)
+            for fixed_cost in fixed_costs:
+                fixed_cost.name = new_name
+                fixed_cost.save()
+            return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'err_msg': str(e)}, status=500)
+
+
+def delete_fixed_cost(request, fixed_cost_name):
+    FixedCost.objects.filter(name=fixed_cost_name).delete()
+    return redirect(gets_monthly)
+
+
+# Earning section
 def get_earnings():
     earnings = Earning.objects.all()
     monthly_inflow = Earning.objects.values('month').annotate(result=Sum('price'))
@@ -69,6 +92,25 @@ def set_earning(request):
     return render(request, 'monthly.html', {'form': form})
 
 
+def edit_earning(request, old_name, new_name):
+    try:
+        with transaction.atomic():
+            earnings = Earning.objects.filter(name=old_name)
+            if Earning.objects.filter(name=new_name).exists():
+                return JsonResponse({'success': False, 'err_msg': f"'{new_name}' already exist."}, status=400)
+            for earning in earnings:
+                earning.name = new_name
+                earning.save()
+            return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'err_msg': str(e)}, status=500)
+
+
+def delete_earning(request, earning_name):
+    Earning.objects.filter(name=earning_name).delete()
+    return redirect(gets_monthly)
+
+
 def get_balance():
     monthly_balance = []
     for month in range(1, 13):
@@ -99,6 +141,7 @@ def gets_monthly(request):
                    'monthly_balance': monthly_balance})
 
 
+# Card spend section
 def get_card_spend():
     return CardSpend.objects.all(), InstallmentPayment.objects.all()
 
@@ -141,14 +184,24 @@ def gets_card(request):
                    'total_card_spend_by_month': total_card_spend_by_month})
 
 
-def delete_fixed_cost(request, fixed_cost_name):
-    FixedCost.objects.filter(name=fixed_cost_name).delete()
-    return redirect(gets_monthly)
-
-
-def delete_earning(request, earning_name):
-    Earning.objects.filter(name=earning_name).delete()
-    return redirect(gets_monthly)
+def edit_card_spend(request, old_name, new_name):
+    try:
+        with transaction.atomic():
+            card_spends = CardSpend.objects.filter(name=old_name)
+            if card_spends.count() != 1:
+                return JsonResponse({'success': False, 'err_msg': f"'{old_name}' duplicated ."}, status=404)
+            if CardSpend.objects.filter(name=new_name).exists():
+                return JsonResponse({'success': False, 'err_msg': f"'{new_name}' already exist."}, status=400)
+            card_spend = card_spends.first()
+            card_spend.name = new_name
+            card_spend.save()
+            installment_payments = InstallmentPayment.objects.filter(card_spend=card_spend)
+            for installment_payment in installment_payments:
+                installment_payment.name = f"{new_name}_{installment_payment.month}"
+                installment_payment.save()
+            return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'err_msg': str(e)}, status=500)
 
 
 def delete_card_spend(request, card_spend_id):
@@ -157,5 +210,6 @@ def delete_card_spend(request, card_spend_id):
     return redirect(gets_card)
 
 
+# Home section
 def home(request):
     return render(request, 'home.html')

@@ -53,4 +53,23 @@ document.addEventListener("DOMContentLoaded", function() {
     // Display message month required
     addSubmit(earningForm, 'earning_month');
     addSubmit(fixedCostForm, 'cost_month');
+
+    // Edit table
+    document.querySelectorAll('.item-name').forEach(function(cell) {
+        cell.addEventListener('click', function() {
+            setSelectedCell(cell);
+        });
+    });
+
+    document.getElementById('edit-cells-btn').addEventListener('click', function() {
+        oldName = setEdit();
+    });
+
+    document.getElementById('ok_edit_btn').addEventListener('click', function() {
+        setOkEdit(oldName);
+    });
+
+    document.getElementById('cancel_edit_btn').addEventListener('click', function() {
+        setCancelEdit(oldName);
+    });
 });

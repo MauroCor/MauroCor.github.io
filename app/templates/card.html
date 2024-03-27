@@ -7,7 +7,11 @@
     <table class="table table-striped table-custom" id="fixed-columns-table">
         <thead>
         <tr>
-            <th></th>
+            <th>
+                <a id="edit-cells-btn" style="display: none;">📝</a>
+                <a id="ok_edit_btn" style="display: none;">✅</a>
+                <a id="cancel_edit_btn" style="display: none;">✖️</a>
+            </th>
             <th>January</th>
             <th>February</th>
             <th>March</th>
@@ -26,7 +30,7 @@
         <!-- Card spend section -->
         {% for card_spend in card_spends %}
         <tr>
-            <td class="cell-card-spend-name">{{ card_spend.name }}</td>
+            <td class="cell-card-spend-name item-name">{{ card_spend.name }}</td>
             <!-- <span>{{card_spend.price }} / {{ card_spend.fees }}</span> -->
             {% for month in months %}
             <td class="cell-card-spend-value">

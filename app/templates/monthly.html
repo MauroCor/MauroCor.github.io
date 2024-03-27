@@ -7,7 +7,11 @@
     <table class="table table-striped table-custom" id="fixed-columns-table">
         <thead>
         <tr>
-            <th></th>
+            <th>
+                <a id="edit-cells-btn" style="display: none;">📝</a>
+                <a id="ok_edit_btn" style="display: none;">✅</a>
+                <a id="cancel_edit_btn" style="display: none;">✖️</a>
+            </th>
             <th>January</th>
             <th>February</th>
             <th>March</th>
@@ -26,7 +30,7 @@
         <!-- Earning section -->
         {% for earning_name in unique_earnings_names %}
         <tr>
-            <td class="cell-earning-name">{{ earning_name }}</td>
+            <td class="cell-earning-name item-name">{{ earning_name }}</td>
             {% for month in months %}
             <td class="cell-earning-value">
                 {% for earning in earnings %}
@@ -55,7 +59,7 @@
         <!-- FixedCost section -->
         {% for fixed_cost_name in unique_fixed_cost_names %}
         <tr>
-            <td class="cell-fixed-cost-name">{{ fixed_cost_name }}</td>
+            <td class="cell-fixed-cost-name item-name">{{ fixed_cost_name }}</td>
             {% for month in months %}
             <td class="cell-fixed-cost-value">
                 {% for fixed_cost in fixed_costs %}
