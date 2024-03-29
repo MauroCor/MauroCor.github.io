@@ -61,6 +61,11 @@
     </table>
 </div>
 <button id="card-spend-button" type="submit" class="btn btn-primary">Set card spend</button>
+{% if messages %}
+{% for message in messages %}
+<h6 class="messages" style="color: red; margin: 5px;">{{ message }}</h6>
+{% endfor %}
+{% endif %}
 <form id="card-spend-form" action="{% url 'set_card_spend' %}" method="post">
     {% csrf_token %}
     <div>
