@@ -60,7 +60,7 @@
         </tbody>
     </table>
 </div>
-<button id="card-spend-button" type="submit" class="btn btn-primary">Set card spend</button>
+<button id="card-spend-button" type="submit" class="btn btn-primary">Set card spend 💳</button>
 {% if messages %}
 {% for message in messages %}
 <h6 class="messages" style="color: red; margin: 5px;">{{ message }}</h6>
@@ -70,7 +70,7 @@
     {% csrf_token %}
     <div>
         <div>
-            <label for="card_spend_name">Card spend:</label>
+            <label for="card_spend_name">Card spend 💳:</label>
             <input type="text" id="card_spend_name" name="name" maxlength="20" required>
         </div>
         <div>
