@@ -1,10 +1,14 @@
 document.addEventListener("DOMContentLoaded", function() {
     var cardSpendForm = document.getElementById("card-spend-form");
 
-    // Display & reset form
+    // Display form
     document.getElementById("card-spend-button").addEventListener("click", function() {
         resetForm(cardSpendForm);
         cardSpendForm.style.display = "block";
+        // Select next month
+        var nextMonth = (new Date().getMonth() + 2) % 12 || 12;
+        document.querySelector('.month_buttons button[value="' + nextMonth + '"]').click();
+        document.getElementById('card_spend_name').focus();
     });
 
     document.getElementById("cancel-cost-btn").addEventListener("click", function() {
