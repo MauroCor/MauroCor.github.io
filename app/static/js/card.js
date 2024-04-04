@@ -50,4 +50,10 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('cancel_edit_btn').addEventListener('click', function() {
         setCancelEdit(oldName);
     });
+
+    document.querySelectorAll('.cell-card-spend-value').forEach(function(cell) {
+        cell.addEventListener('click', function() {
+            setLineThrough(cell);
+        });
+    });
 });

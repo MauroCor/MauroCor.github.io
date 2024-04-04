@@ -137,3 +137,14 @@ function setCancelEdit(oldName) {
     document.getElementById('cancel_edit_btn').style.display = 'none';
     document.getElementById('edit-cells-btn').style.display = 'inline-block';
 }
+
+function setLineThrough(cell) {
+    var isLineThrough = cell.style.textDecoration === 'line-through';
+    if (!isLineThrough) {
+        cell.style.color = '#708090';
+        cell.style.textDecoration = 'line-through';
+    } else {
+        cell.style.color = '';
+        cell.style.textDecoration = '';
+    }
+}
