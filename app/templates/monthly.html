@@ -35,7 +35,7 @@
             <td class="cell-earning-value" data-id="earn_{{ earning_name }}_{{ month }}">
                 {% for earning in earnings %}
                 {% if earning.name == earning_name and earning.month == month %}
-                {{ earning.price }}
+                <span class="cell-value">{{ earning.price }}</span>
                 {% endif %}
                 {% endfor %}
             </td>
@@ -50,7 +50,7 @@
             <td class="cell-inflow-value">
                 {% for inflow in monthly_inflow %}
                 {% if inflow.month == month %}
-                {{ inflow.result }}
+                <span class="cell-value">{{ inflow.result }}</span>
                 {% endif %}
                 {% endfor %}
             </td>
@@ -64,7 +64,7 @@
             <td class="cell-fixed-cost-value" data-id="cost_{{ fixed_cost_name }}_{{ month }}">
                 {% for fixed_cost in fixed_costs %}
                 {% if fixed_cost.name == fixed_cost_name and fixed_cost.month == month %}
-                {{ fixed_cost.price }}
+                <span class="cell-value">{{ fixed_cost.price }}</span>
                 {% endif %}
                 {% endfor %}
             </td>
@@ -79,7 +79,7 @@
             <td class="cell-outflow-value">
                 {% for outflow in monthly_outflow %}
                 {% if outflow.month == month %}
-                {{ outflow.result }}
+                <span class="cell-value">{{ outflow.result }}</span>
                 {% endif %}
                 {% endfor %}
             </td>
@@ -92,7 +92,7 @@
             <td class="cell-balance-value">
                 {% for balance in monthly_balance %}
                 {% if balance.month == month %}
-                {{ balance.result }}
+                <span class="cell-value">{{ balance.result }}</span>
                 {% endif %}
                 {% endfor %}
             </td>
@@ -101,8 +101,8 @@
         </tbody>
     </table>
 </div>
-<button id="fixed-cost-button" type="submit" class="btn btn-primary">Set fixed cost 📉</button>
 <button id="earning-button" type="submit" class="btn btn-primary">Set earning 📈</button>
+<button id="fixed-cost-button" type="submit" class="btn btn-primary">Set fixed cost 📉</button>
 <form id="fixed-cost-form" action="{% url 'set_fixed_cost' %}" method="post" class="mr-2">
     {% csrf_token %}
     <div>

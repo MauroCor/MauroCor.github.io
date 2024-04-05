@@ -31,13 +31,19 @@
         {% for card_spend in card_spends %}
         <tr>
             <td class="cell-card-spend-name item-name">{{ card_spend.name }}</td>
-            <!-- <span>{{card_spend.price }} / {{ card_spend.fees }}</span> -->
             {% for month in months %}
-            <td class="cell-card-spend-value" data-id="card_{{ card_spend }}_{{ month }}">
+            <td class="cell-card-spend-value">
                 {% for installment_payment in installment_payments %}
-                {% if card_spend.name in installment_payment.name and installment_payment.month == month %}
-                {{ installment_payment.fee_value }}
-                {% endif %}
+                    {% if card_spend.name in installment_payment.name and installment_payment.month == month %}
+                        <div>
+                            <div class="installment-container">
+                                <span class="cell-value" data-id="card_{{ card_spend.name }}_{{ month }}">{{ installment_payment.fee_value }}</span>
+                            </div>
+                            <div class="fee-prog-container">
+                                <span class="fee-prog">{{ installment_payment.fee_num }}/{{ card_spend.fees }}</span>
+                            </div>
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </td>
             {% endfor %}
@@ -51,7 +57,7 @@
             <td class="cell-total-value">
                 {% for card_spend in total_card_spend_by_month %}
                 {% if card_spend.month == month %}
-                {{ card_spend.total }}
+                <span class="cell-value">{{ card_spend.total }}</span>
                 {% endif %}
                 {% endfor %}
             </td>

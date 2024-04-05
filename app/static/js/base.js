@@ -1,14 +1,19 @@
 document.addEventListener("DOMContentLoaded", function() {
-    var bodyCells = document.getElementById('fixed-columns-table').querySelectorAll('tbody td:not(:first-child):not(.delete-button)');
+    var bodyCells = document.querySelectorAll('.cell-value');
 
     // Money format
     bodyCells.forEach(function(cell) {
         var cellText = cell.textContent.trim();
-        var cellNumber = parseFloat(cellText.replace(/[^\d]/g, ''));
+        var cellNumber = parseFloat(cellText.replace(/[^\d.-]/g, '')); // Modificado para incluir el signo negativo
         if (isNaN(cellNumber)) {
             cell.textContent = '';
         } else {
-            var formattedNumber = "$" + cellNumber.toLocaleString('es-ES', { maximumFractionDigits: 0 });
+            var formattedNumber = cellNumber.toLocaleString('es-ES', { maximumFractionDigits: 0 });
+            if (cellNumber < 0) {
+                formattedNumber = "-$" + formattedNumber.slice(1); // Agregar el signo negativo
+            } else {
+                formattedNumber = "$" + formattedNumber;
+            }
             cell.textContent = formattedNumber;
         }
     });
@@ -142,10 +147,10 @@ function setLineThrough(cell) {
     var id = cell.getAttribute('data-id');
     var done = localStorage.getItem(id) === 'true';
     done = !done;
-    localStorage.setItem(id, done.toString());
     if (done) {
         cell.classList.add('done');
     } else {
         cell.classList.remove('done');
     }
+    localStorage.setItem(id, done ? 'true' : 'false');
 }

@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function() {
         setCancelEdit(oldName);
     });
 
-    document.querySelectorAll('.cell-card-spend-value').forEach(function(cell) {
+    document.querySelectorAll('.installment-container .cell-value').forEach(function(cell) {
         var id = cell.getAttribute('data-id');
         var done = localStorage.getItem(id) === 'true';
         if (done) {
@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    document.querySelectorAll('.cell-card-spend-value').forEach(function(cell) {
+    document.querySelectorAll('.installment-container .cell-value').forEach(function(cell) {
         cell.addEventListener('click', function() {
             setLineThrough(cell);
         });
