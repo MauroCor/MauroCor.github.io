@@ -52,6 +52,14 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     document.querySelectorAll('.cell-card-spend-value').forEach(function(cell) {
+        var id = cell.getAttribute('data-id');
+        var done = localStorage.getItem(id) === 'true';
+        if (done) {
+            cell.classList.add('done');
+        }
+    });
+
+    document.querySelectorAll('.cell-card-spend-value').forEach(function(cell) {
         cell.addEventListener('click', function() {
             setLineThrough(cell);
         });

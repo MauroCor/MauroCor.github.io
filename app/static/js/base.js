@@ -139,12 +139,13 @@ function setCancelEdit(oldName) {
 }
 
 function setLineThrough(cell) {
-    var isLineThrough = cell.style.textDecoration === 'line-through';
-    if (!isLineThrough) {
-        cell.style.color = '#708090';
-        cell.style.textDecoration = 'line-through';
+    var id = cell.getAttribute('data-id');
+    var done = localStorage.getItem(id) === 'true';
+    done = !done;
+    localStorage.setItem(id, done.toString());
+    if (done) {
+        cell.classList.add('done');
     } else {
-        cell.style.color = '';
-        cell.style.textDecoration = '';
+        cell.classList.remove('done');
     }
 }

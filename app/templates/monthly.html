@@ -32,7 +32,7 @@
         <tr>
             <td class="cell-earning-name item-name">{{ earning_name }}</td>
             {% for month in months %}
-            <td class="cell-earning-value">
+            <td class="cell-earning-value" data-id="earn_{{ earning_name }}_{{ month }}">
                 {% for earning in earnings %}
                 {% if earning.name == earning_name and earning.month == month %}
                 {{ earning.price }}
@@ -61,7 +61,7 @@
         <tr>
             <td class="cell-fixed-cost-name item-name">{{ fixed_cost_name }}</td>
             {% for month in months %}
-            <td class="cell-fixed-cost-value">
+            <td class="cell-fixed-cost-value" data-id="cost_{{ fixed_cost_name }}_{{ month }}">
                 {% for fixed_cost in fixed_costs %}
                 {% if fixed_cost.name == fixed_cost_name and fixed_cost.month == month %}
                 {{ fixed_cost.price }}

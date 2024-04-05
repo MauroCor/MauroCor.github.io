@@ -73,6 +73,15 @@ document.addEventListener("DOMContentLoaded", function() {
         setCancelEdit(oldName);
     });
 
+    // Check done cells
+    document.querySelectorAll('.cell-earning-value, .cell-fixed-cost-value').forEach(function(cell) {
+        var id = cell.getAttribute('data-id');
+        var done = localStorage.getItem(id) === 'true';
+        if (done) {
+            cell.classList.add('done');
+        }
+    });
+
     document.querySelectorAll('.cell-earning-value, .cell-fixed-cost-value').forEach(function(cell) {
         cell.addEventListener('click', function() {
             setLineThrough(cell);

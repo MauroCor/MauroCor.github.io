@@ -85,6 +85,11 @@ td.editing {
     font-weight: bold;
 }
 
+.done {
+    color: #708090;
+    text-decoration: line-through;
+}
+
 /* forms section */
 #fixed-cost-form,
 #earning-form {
