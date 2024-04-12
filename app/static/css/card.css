@@ -12,6 +12,7 @@ thead th:first-child {
     position: sticky;
     left: 0;
     z-index: 1;
+    border-bottom: none;
 }
 
 tbody td:first-child {
@@ -25,14 +26,51 @@ tr, th, td {
     text-align: center;
 }
 
+td.selected {
+    border: 2px solid black;
+}
+
+td.editing {
+    background-color: gainsboro;
+}
+
+.done {
+    color: #708090;
+    text-decoration: line-through;
+}
+
 /* card-spend section */
 .cell-card-spend-name {
     background-color: #C0DCE6;
+    min-width: 150px;
 }
 
 .cell-card-spend-value {
     background-color: #F0F8FF;
     color: #000000;
+    position: relative;
+    min-width: auto;
+    white-space: nowrap;
+}
+
+.cell-card-spend-value > div {
+    display: inline-block;
+}
+
+.installment-container,
+.fee-prog-container {
+    display: inline-block;
+}
+
+.fee-prog-container {
+    position: relative;
+    top: -8px;
+    bottom: 8px;
+}
+
+.fee-prog {
+    font-size: 8px;
+    color: gray;
 }
 
 /* total section */

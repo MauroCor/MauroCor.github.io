@@ -1,10 +1,14 @@
+from django.contrib import messages
+from django.db import transaction
 from django.db.models import Sum
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-from .forms import FixedCostForm, EarningForm, CardSpendForm
-from .models import FixedCost, Earning, CardSpend, InstallmentPayment
+from .forms import FixedCostForm, EarningForm, CardSpendForm, InvestForm
+from .models import FixedCost, Earning, CardSpend, InstallmentPayment, Invest
 
 
+# Fixed cost section
 def get_fixed_costs():
     fixed_costs = FixedCost.objects.all()
     monthly_outflow = FixedCost.objects.values('month').annotate(result=Sum('price'))
@@ -37,6 +41,26 @@ def set_fixed_cost(request):
     return render(request, 'monthly.html', {'form': form})
 
 
+@transaction.atomic
+def edit_fixed_cost(request, old_name, new_name):
+    try:
+        fixed_costs = FixedCost.objects.filter(name=old_name)
+        if FixedCost.objects.filter(name=new_name).exists():
+            return JsonResponse({'success': False, 'err_msg': f"'{new_name}' already exist."}, status=400)
+        for fixed_cost in fixed_costs:
+            fixed_cost.name = new_name
+            fixed_cost.save()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'err_msg': str(e)}, status=500)
+
+
+def delete_fixed_cost(request, fixed_cost_name):
+    FixedCost.objects.filter(name=fixed_cost_name).delete()
+    return redirect(gets_monthly)
+
+
+# Earning section
 def get_earnings():
     earnings = Earning.objects.all()
     monthly_inflow = Earning.objects.values('month').annotate(result=Sum('price'))
@@ -69,6 +93,41 @@ def set_earning(request):
     return render(request, 'monthly.html', {'form': form})
 
 
+@transaction.atomic
+def edit_earning(request, old_name, new_name):
+    try:
+        earnings = Earning.objects.filter(name=old_name)
+        if Earning.objects.filter(name=new_name).exists():
+            return JsonResponse({'success': False, 'err_msg': f"'{new_name}' already exist."}, status=400)
+        for earning in earnings:
+            earning.name = new_name
+            earning.save()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'err_msg': str(e)}, status=500)
+
+
+def delete_earning(request, earning_name):
+    Earning.objects.filter(name=earning_name).delete()
+    return redirect(gets_monthly)
+
+
+def set_invest(request):
+    if request.method == 'POST':
+        form = InvestForm(request.POST)
+        if form.is_valid():
+            new_invest = form.save(commit=False)
+            existing_invest, created = Invest.objects.get_or_create(month=new_invest.month)
+            existing_invest.vwallet = new_invest.vwallet
+            existing_invest.total = new_invest.total
+            existing_invest.note = new_invest.note
+            existing_invest.save()
+            return redirect(gets_monthly)
+    else:
+        form = InvestForm()
+    return render(request, 'monthly.html', {'form': form})
+
+
 def get_balance():
     monthly_balance = []
     for month in range(1, 13):
@@ -88,6 +147,7 @@ def gets_monthly(request):
     unique_fixed_cost_names = set(fixed_cost.name for fixed_cost in fixed_costs)
     unique_earnings_names = set(earnings.name for earnings in earnings)
     months = list(range(1, 13))
+    invests = Invest.objects.all()
     return render(request, 'monthly.html',
                   {'months': months,
                    'fixed_costs': fixed_costs,
@@ -96,17 +156,24 @@ def gets_monthly(request):
                    'earnings': earnings,
                    'monthly_inflow': monthly_inflow,
                    'unique_earnings_names': unique_earnings_names,
+                   'invests': invests,
                    'monthly_balance': monthly_balance})
 
 
+# Card spend section
 def get_card_spend():
     return CardSpend.objects.all(), InstallmentPayment.objects.all()
 
 
+@transaction.atomic
 def set_card_spend(request):
     if request.method == 'POST':
         form = CardSpendForm(request.POST)
         if form.is_valid():
+            new_name = form.cleaned_data['name']
+            if CardSpend.objects.filter(name=new_name).exists():
+                messages.error(request, f"'{new_name}' already exists.")
+                return redirect(gets_card)
             card_spend = form.save()
             InstallmentPayment.generate_installments_payments(card_spend)
             return redirect(gets_card)
@@ -141,14 +208,24 @@ def gets_card(request):
                    'total_card_spend_by_month': total_card_spend_by_month})
 
 
-def delete_fixed_cost(request, fixed_cost_name):
-    FixedCost.objects.filter(name=fixed_cost_name).delete()
-    return redirect(gets_monthly)
-
-
-def delete_earning(request, earning_name):
-    Earning.objects.filter(name=earning_name).delete()
-    return redirect(gets_monthly)
+@transaction.atomic
+def edit_card_spend(request, old_name, new_name):
+    try:
+        card_spends = CardSpend.objects.filter(name=old_name)
+        if card_spends.count() != 1:
+            return JsonResponse({'success': False, 'err_msg': f"'{old_name}' duplicated ."}, status=404)
+        if CardSpend.objects.filter(name=new_name).exists():
+            return JsonResponse({'success': False, 'err_msg': f"'{new_name}' already exist."}, status=400)
+        card_spend = card_spends.first()
+        card_spend.name = new_name
+        card_spend.save()
+        installment_payments = InstallmentPayment.objects.filter(card_spend=card_spend)
+        for installment_payment in installment_payments:
+            installment_payment.name = f"{new_name}_{installment_payment.month}"
+            installment_payment.save()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'err_msg': str(e)}, status=500)
 
 
 def delete_card_spend(request, card_spend_id):
@@ -157,5 +234,6 @@ def delete_card_spend(request, card_spend_id):
     return redirect(gets_card)
 
 
+# Home section
 def home(request):
     return render(request, 'home.html')
