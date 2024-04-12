@@ -4,13 +4,13 @@ document.addEventListener("DOMContentLoaded", function() {
     // Money format
     bodyCells.forEach(function(cell) {
         var cellText = cell.textContent.trim();
-        var cellNumber = parseFloat(cellText.replace(/[^\d.-]/g, '')); // Modificado para incluir el signo negativo
+        var cellNumber = parseFloat(cellText.replace(/[^\d.-]/g, ''));
         if (isNaN(cellNumber)) {
             cell.textContent = '';
         } else {
             var formattedNumber = cellNumber.toLocaleString('es-ES', { maximumFractionDigits: 0 });
             if (cellNumber < 0) {
-                formattedNumber = "-$" + formattedNumber.slice(1); // Agregar el signo negativo
+                formattedNumber = "-$" + formattedNumber.slice(1);
             } else {
                 formattedNumber = "$" + formattedNumber;
             }

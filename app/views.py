@@ -4,8 +4,8 @@ from django.db.models import Sum
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-from .forms import FixedCostForm, EarningForm, CardSpendForm
-from .models import FixedCost, Earning, CardSpend, InstallmentPayment
+from .forms import FixedCostForm, EarningForm, CardSpendForm, InvestForm
+from .models import FixedCost, Earning, CardSpend, InstallmentPayment, Invest
 
 
 # Fixed cost section
@@ -112,6 +112,22 @@ def delete_earning(request, earning_name):
     return redirect(gets_monthly)
 
 
+def set_invest(request):
+    if request.method == 'POST':
+        form = InvestForm(request.POST)
+        if form.is_valid():
+            new_invest = form.save(commit=False)
+            existing_invest, created = Invest.objects.get_or_create(month=new_invest.month)
+            existing_invest.vwallet = new_invest.vwallet
+            existing_invest.total = new_invest.total
+            existing_invest.note = new_invest.note
+            existing_invest.save()
+            return redirect(gets_monthly)
+    else:
+        form = InvestForm()
+    return render(request, 'monthly.html', {'form': form})
+
+
 def get_balance():
     monthly_balance = []
     for month in range(1, 13):
@@ -131,6 +147,7 @@ def gets_monthly(request):
     unique_fixed_cost_names = set(fixed_cost.name for fixed_cost in fixed_costs)
     unique_earnings_names = set(earnings.name for earnings in earnings)
     months = list(range(1, 13))
+    invests = Invest.objects.all()
     return render(request, 'monthly.html',
                   {'months': months,
                    'fixed_costs': fixed_costs,
@@ -139,6 +156,7 @@ def gets_monthly(request):
                    'earnings': earnings,
                    'monthly_inflow': monthly_inflow,
                    'unique_earnings_names': unique_earnings_names,
+                   'invests': invests,
                    'monthly_balance': monthly_balance})
 
 

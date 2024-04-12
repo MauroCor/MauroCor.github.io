@@ -79,7 +79,7 @@
             <td class="cell-outflow-value">
                 {% for outflow in monthly_outflow %}
                 {% if outflow.month == month %}
-                <span class="cell-value">{{ outflow.result }}</span>
+                <span class="cell-value oflw_{{ month }}">{{ outflow.result }}</span>
                 {% endif %}
                 {% endfor %}
             </td>
@@ -92,7 +92,7 @@
             <td class="cell-balance-value">
                 {% for balance in monthly_balance %}
                 {% if balance.month == month %}
-                <span class="cell-value">{{ balance.result }}</span>
+                <span class="cell-value bal_{{ month }}">{{ balance.result }}</span>
                 {% endif %}
                 {% endfor %}
             </td>
@@ -103,6 +103,7 @@
 </div>
 <button id="earning-button" type="submit" class="btn btn-primary">Set earning 📈</button>
 <button id="fixed-cost-button" type="submit" class="btn btn-primary">Set fixed cost 📉</button>
+<button id="invest-button" type="submit" class="btn btn-primary">Set invest 💹</button>
 <form id="fixed-cost-form" action="{% url 'set_fixed_cost' %}" method="post" class="mr-2">
     {% csrf_token %}
     <div>
@@ -176,5 +177,79 @@
     </div>
     <button type="submit" class="btn btn-primary" style="margin-left: 70px">Set</button>
     <button id="cancel-earning-btn" type="submit" class="btn btn-primary">Cancel</button>
+</form>
+<form id="invest-form" action="{% url 'set_invest' %}" method="post" class="ml-2">
+    {% csrf_token %}
+    <div>
+        <div>
+            <div class="month_buttons">
+                <button type="button" value="1">Jan</button>
+                <button type="button" value="2">Feb</button>
+                <button type="button" value="3">Mar</button>
+                <button type="button" value="4">Apr</button>
+                <button type="button" value="5">May</button>
+                <button type="button" value="6">Jun</button>
+                <button type="button" value="7">Jul</button>
+                <button type="button" value="8">Aug</button>
+                <button type="button" value="9">Sep</button>
+                <button type="button" value="10">Oct</button>
+                <button type="button" value="11">Nov</button>
+                <button type="button" value="12">Dec</button>
+            </div>
+            <div>
+                <label>Virtual wallet:</label>
+                <span class="cell-value out-inv">0</span>
+            </div>
+        </div>
+        <div>
+            <label for="excess">Balance + last excess:</label>
+            <span class="cell-value bal-inv">0</span>
+            <span> + </span>
+            <input type="text" id="excess" maxlength="20" style="width: 70px">
+            <span> = </span>
+            <span class="cell-value tot-inv">0</span>
+        </div>
+        <div>
+            <label for="note-inv">Note:</label>
+            <input type="text" id="note-inv" style="width: 350px">
+        </div>
+        <button id="save-invest-btn" style="margin-bottom: 5px; margin-left: 170px" class="btn btn-primary">Save</button>
+        {% for invest in invests %}
+        <div class="inv-summ">
+            <div>
+                <label>Month</label>
+                <span>{{ invest.month }}</span>
+                <label>V-wall</label>
+                <span>{{ invest.vwallet }}</span>
+            </div>
+            <div>
+                <label>Total</label>
+                <span>{{ invest.total }}</span>
+                <label>Notes</label>
+                <span>{{ invest.note }}</span>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="template">
+            <div>
+                <label>Month</label>
+                <span>-</span>
+                <label>V-wall</label>
+                <span>-</span>
+            </div>
+            <div>
+                <label>Total</label>
+                <span>-</span>
+                <label>Notes</label>
+                <span>-</span>
+            </div>
+        </div>
+        <input type="hidden" name="month" id="month-inv">
+        <input type="hidden" name="vwallet" id="vwallet-inv">
+        <input type="hidden" name="total" id="total-inv">
+        <input type="hidden" name="note" id="notes-inv">
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin-left: 145px">Set</button>
+    <button id="cancel-invest-btn" type="submit" class="btn btn-primary">Cancel</button>
 </form>
 {% endblock %}

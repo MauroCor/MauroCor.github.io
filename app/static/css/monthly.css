@@ -92,7 +92,8 @@ td.editing {
 
 /* forms section */
 #fixed-cost-form,
-#earning-form {
+#earning-form,
+#invest-form {
     display: none;
 }
 
@@ -124,4 +125,42 @@ label {
 
 .btn-primary {
     margin-top: 5px;
+}
+
+.template,
+.inv-summ {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 400px;
+    display: none;
+}
+
+.template div,
+.inv-summ div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.template label,
+.inv-summ label {
+    font-weight: bold;
+    font-size: 13px;
+    color: #333;
+    margin-right: 10px;
+    margin-left: 15px;
+}
+
+.template span,
+.inv-summ span {
+    font-size: 12px;
+    color: #666;
+    flex: 1;
+}
+
+.template span:last-child,
+.inv-summ span:last-child {
+    line-height: 1;
 }

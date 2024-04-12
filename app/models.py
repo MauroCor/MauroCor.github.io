@@ -37,3 +37,10 @@ class InstallmentPayment(models.Model):
                 fee_value=card_spend.price / card_spend.fees,
                 month=month,
                 fee_num=fee_num)
+
+
+class Invest(models.Model):
+    month = models.CharField(max_length=3)
+    vwallet = models.CharField(max_length=10)
+    total = models.CharField(max_length=10)
+    note = models.CharField(max_length=50)

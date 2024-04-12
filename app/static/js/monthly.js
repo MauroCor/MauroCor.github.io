@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function() {
     var fixedCostForm = document.getElementById("fixed-cost-form");
     var earningForm = document.getElementById("earning-form");
+    var investForm = document.getElementById("invest-form");
 
     // Display & reset form
     document.getElementById("fixed-cost-button").addEventListener("click", function() {
@@ -15,6 +16,14 @@ document.addEventListener("DOMContentLoaded", function() {
         fixedCostForm.style.display = "none";
     });
 
+    document.getElementById("invest-button").addEventListener("click", function() {
+        investForm.style.display = "block";
+        // Select next month
+        var nextMonth = (new Date().getMonth() + 2) % 12 || 12;
+        investForm.querySelector('.month_buttons button[value="' + nextMonth + '"]').click();
+        document.getElementById('excess').focus();
+    });
+
     document.getElementById("cancel-cost-btn").addEventListener("click", function() {
         event.preventDefault();
         fixedCostForm.style.display = "none";
@@ -25,15 +34,15 @@ document.addEventListener("DOMContentLoaded", function() {
         earningForm.style.display = "none";
     });
 
+    document.getElementById("cancel-invest-btn").addEventListener("click", function() {
+        event.preventDefault();
+        investForm.style.display = "none";
+    });
+
     // Complete form
     document.querySelectorAll('.input_buttons button').forEach(function(btn) {
         btn.addEventListener('click', function() {
             setValue(btn, 'earning_name');
-        });
-    });
-
-    document.querySelectorAll('.input_buttons button').forEach(function(btn) {
-        btn.addEventListener('click', function() {
             setValue(btn, 'fixed_name');
         });
     });
@@ -41,13 +50,59 @@ document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll('.month_buttons button').forEach(function(btn) {
         btn.addEventListener('click', function() {
             setMonth(btn, 'earning_month');
+            setMonth(btn, 'cost_month');
         });
     });
 
-    document.querySelectorAll('.month_buttons button').forEach(function(btn) {
+    investForm.querySelectorAll('.month_buttons button').forEach(function(btn) {
         btn.addEventListener('click', function() {
-            setMonth(btn, 'cost_month');
+            var oflwValue = document.querySelector('.oflw_' + btn.value).innerText;
+            var balValue = document.querySelector('.bal_' + btn.value).innerText;
+            investForm.querySelectorAll('.out-inv')[0].innerText = oflwValue;
+            investForm.querySelectorAll('.bal-inv')[0].innerText = balValue;
+            var template = investForm.querySelector('.template');
+            var elementShown = false;
+            investForm.querySelectorAll('.inv-summ').forEach(function(element) {
+                element.style.display = "none";
+                template.style.display = "none";
+                var spanMonth = element.querySelector('span');
+                if (spanMonth.innerText === btn.innerText) {
+                    element.style.display = "block";
+                    elementShown = true;
+                }
+            });
+            if (!elementShown) {
+                template.style.display = "block";
+            } else {
+                template.style.display = "none";
+            }
         });
+    });
+
+    document.getElementById("save-invest-btn").addEventListener("click", function() {
+        event.preventDefault();
+        var month = investForm.querySelector('.month_buttons button.selected').innerText;
+        var vwallet = investForm.querySelector('.out-inv').innerText;
+        var total = investForm.querySelector('.tot-inv').innerText;
+        var note = investForm.querySelector('#note-inv').value;
+        investForm.querySelectorAll('.inv-summ span')[0].innerText = month;
+        investForm.querySelector('#month-inv').value = month;
+        investForm.querySelectorAll('.inv-summ span')[1].innerText = vwallet;
+        investForm.querySelector('#vwallet-inv').value = vwallet;
+        investForm.querySelectorAll('.inv-summ span')[2].innerText = total;
+        investForm.querySelector('#total-inv').value = total;
+        investForm.querySelectorAll('.inv-summ span')[3].innerText = note;
+        investForm.querySelector('#notes-inv').value = note;
+    });
+
+    document.getElementById("excess").addEventListener("input", function() {
+        var excessInput = document.getElementById('excess').value.trim();
+        var excessValue = excessInput ? parseInt(excessInput) : 0;
+        var balText = document.querySelector('.bal-inv').innerText;
+        var balValue = parseFloat(balText.replace(/[^\d.,-]/g, '').replace(',', '.').replace(/^(-?)(\d*)\.(.*)$/, '$1$2$3'));
+        var total = balValue + excessValue;
+        var formattedTotal = (total < 0 ? "-$" : "$") + Math.abs(total).toLocaleString('es-ES', { maximumFractionDigits: 0 });
+        investForm.querySelector('.tot-inv').innerText = formattedTotal;
     });
 
     // Display message month required
