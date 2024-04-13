@@ -2,6 +2,7 @@
 # Exit on error
 set -o errexit
 
+# mkvirtualenv --python=/usr/bin/python3.10 venv
 pip install -r requirements.txt
 
 # Convert static asset files

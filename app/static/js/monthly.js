@@ -63,11 +63,13 @@ document.addEventListener("DOMContentLoaded", function() {
             var template = investForm.querySelector('.template');
             var elementShown = false;
             investForm.querySelectorAll('.inv-summ').forEach(function(element) {
+                element.classList.remove('focus');
                 element.style.display = "none";
                 template.style.display = "none";
                 var spanMonth = element.querySelector('span');
                 if (spanMonth.innerText === btn.innerText) {
                     element.style.display = "block";
+                    element.classList.add('focus');
                     elementShown = true;
                 }
             });
@@ -85,14 +87,21 @@ document.addEventListener("DOMContentLoaded", function() {
         var vwallet = investForm.querySelector('.out-inv').innerText;
         var total = investForm.querySelector('.tot-inv').innerText;
         var note = investForm.querySelector('#note-inv').value;
-        investForm.querySelectorAll('.inv-summ span')[0].innerText = month;
         investForm.querySelector('#month-inv').value = month;
-        investForm.querySelectorAll('.inv-summ span')[1].innerText = vwallet;
         investForm.querySelector('#vwallet-inv').value = vwallet;
-        investForm.querySelectorAll('.inv-summ span')[2].innerText = total;
         investForm.querySelector('#total-inv').value = total;
-        investForm.querySelectorAll('.inv-summ span')[3].innerText = note;
         investForm.querySelector('#notes-inv').value = note;
+        if (investForm.querySelector('.template').style.display != "none") {
+            investForm.querySelectorAll('.template span')[0].innerText = month;
+            investForm.querySelectorAll('.template span')[1].innerText = vwallet;
+            investForm.querySelectorAll('.template span')[2].innerText = total;
+            investForm.querySelectorAll('.template span')[3].innerText = note;
+        } else {
+            investForm.querySelectorAll('.focus span')[0].innerText = month;
+            investForm.querySelectorAll('.focus span')[1].innerText = vwallet;
+            investForm.querySelectorAll('.focus span')[2].innerText = total;
+            investForm.querySelectorAll('.focus span')[3].innerText = note;
+        }
     });
 
     document.getElementById("excess").addEventListener("input", function() {
