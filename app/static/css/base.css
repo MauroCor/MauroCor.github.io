@@ -1,0 +1,11 @@
+/* navbar section */
+.nav-item a.selected {
+    background-color: dimgrey;
+    font-weight: bold;
+}
+
+.hide-col {
+    max-width: 0px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

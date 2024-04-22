@@ -8,12 +8,14 @@ document.addEventListener("DOMContentLoaded", function() {
         resetForm(fixedCostForm);
         fixedCostForm.style.display = "block";
         earningForm.style.display = "none";
+        document.getElementById('fixed_name').focus();
     });
 
     document.getElementById("earning-button").addEventListener("click", function() {
         resetForm(earningForm);
         earningForm.style.display = "block";
         fixedCostForm.style.display = "none";
+        document.getElementById('earning_name').focus();
     });
 
     document.getElementById("invest-button").addEventListener("click", function() {
@@ -60,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function() {
             var balValue = document.querySelector('.bal_' + btn.value).innerText;
             investForm.querySelectorAll('.out-inv')[0].innerText = oflwValue;
             investForm.querySelectorAll('.bal-inv')[0].innerText = balValue;
+            investForm.querySelectorAll('.tot-inv')[0].innerText = balValue;
             var template = investForm.querySelector('.template');
             var elementShown = false;
             investForm.querySelectorAll('.inv-summ').forEach(function(element) {
@@ -151,4 +154,6 @@ document.addEventListener("DOMContentLoaded", function() {
             setLineThrough(cell);
         });
     });
+
+    pastMonths();
 });

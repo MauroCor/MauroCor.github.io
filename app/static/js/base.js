@@ -17,17 +17,21 @@ document.addEventListener("DOMContentLoaded", function() {
             cell.textContent = formattedNumber;
         }
     });
+
+    document.querySelectorAll('.nav-link').forEach(function(link) {
+        if (link.getAttribute("href") === window.location.pathname) {
+            link.classList.add("selected");
+        }
+    });
 });
 
 function setValue(btn, inputId) {
     var value = btn.value;
     var input = document.getElementById(inputId);
     var prevSelectedButton = document.querySelector('.input_buttons button.selected');
-
     if (prevSelectedButton) {
         prevSelectedButton.classList.remove('selected');
     }
-
     if (!btn.classList.contains('selected')) {
         btn.classList.add('selected');
         input.value = value;
@@ -39,11 +43,9 @@ function setMonth(btn, inputId) {
     var input = document.getElementById(inputId);
     var prevSelectedButton = document.querySelector('.month_buttons button.selected');
     var span = document.getElementById(inputId + '_error');
-
     if (prevSelectedButton) {
         prevSelectedButton.classList.remove('selected');
     }
-
     if (!btn.classList.contains('selected')) {
         btn.classList.add('selected');
         input.value = month;
@@ -153,4 +155,25 @@ function setLineThrough(cell) {
         cell.classList.remove('done');
     }
     localStorage.setItem(id, done ? 'true' : 'false');
+}
+
+function toggleColumn(columnIndex) {
+    var table = document.getElementById("fixed-columns-table");
+    var headerCell = table.querySelector("thead th:nth-child(" + (columnIndex + 1) + ")");
+    var tbodyCells = table.querySelectorAll("tbody td:nth-child(" + (columnIndex + 1) + ")");
+    headerCell.classList.toggle("hide-col");
+    tbodyCells.forEach(function(cell) {
+    cell.classList.toggle("hide-col");
+    });
+}
+
+function pastMonths() {
+    var currentMonth = new Date().getMonth() + 1;
+    var columns = document.querySelectorAll("thead th[onclick]");
+    columns.forEach(function(col, index) {
+        var monthNumber = index + 1;
+        if (monthNumber < currentMonth) {
+            col.click();
+        }
+    });
 }
