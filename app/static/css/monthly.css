@@ -93,7 +93,7 @@ td.editing {
 /* forms section */
 #fixed-cost-form,
 #earning-form,
-#invest-form {
+#note-form {
     display: none;
 }
 

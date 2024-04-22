@@ -4,8 +4,8 @@ from django.db.models import Sum
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-from .forms import FixedCostForm, EarningForm, CardSpendForm, InvestForm
-from .models import FixedCost, Earning, CardSpend, InstallmentPayment, Invest
+from .forms import FixedCostForm, EarningForm, CardSpendForm, NoteForm
+from .models import FixedCost, Earning, CardSpend, InstallmentPayment, Note
 
 
 # Fixed cost section
@@ -112,19 +112,19 @@ def delete_earning(request, earning_name):
     return redirect(gets_monthly)
 
 
-def set_invest(request):
+def set_note(request):
     if request.method == 'POST':
-        form = InvestForm(request.POST)
+        form = NoteForm(request.POST)
         if form.is_valid():
-            new_invest = form.save(commit=False)
-            existing_invest, created = Invest.objects.get_or_create(month=new_invest.month)
-            existing_invest.vwallet = new_invest.vwallet
-            existing_invest.total = new_invest.total
-            existing_invest.note = new_invest.note
-            existing_invest.save()
+            new_note = form.save(commit=False)
+            existing_note, created = Note.objects.get_or_create(month=new_note.month)
+            existing_note.bills = new_note.bills
+            existing_note.cash = new_note.cash
+            existing_note.note = new_note.note
+            existing_note.save()
             return redirect(gets_monthly)
     else:
-        form = InvestForm()
+        form = NoteForm()
     return render(request, 'monthly.html', {'form': form})
 
 
@@ -147,7 +147,7 @@ def gets_monthly(request):
     unique_fixed_cost_names = set(fixed_cost.name for fixed_cost in fixed_costs)
     unique_earnings_names = set(earnings.name for earnings in earnings)
     months = list(range(1, 13))
-    invests = Invest.objects.all()
+    notes = Note.objects.all()
     return render(request, 'monthly.html',
                   {'months': months,
                    'fixed_costs': fixed_costs,
@@ -156,7 +156,7 @@ def gets_monthly(request):
                    'earnings': earnings,
                    'monthly_inflow': monthly_inflow,
                    'unique_earnings_names': unique_earnings_names,
-                   'invests': invests,
+                   'notes': notes,
                    'monthly_balance': monthly_balance})
 
 

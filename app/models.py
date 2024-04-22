@@ -39,8 +39,8 @@ class InstallmentPayment(models.Model):
                 fee_num=fee_num)
 
 
-class Invest(models.Model):
+class Note(models.Model):
     month = models.CharField(max_length=3)
-    vwallet = models.CharField(max_length=10)
-    total = models.CharField(max_length=10)
+    bills = models.CharField(max_length=10)
+    cash = models.CharField(max_length=10)
     note = models.CharField(max_length=50)
