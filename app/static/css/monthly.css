@@ -93,7 +93,7 @@ td.editing {
 /* forms section */
 #fixed-cost-form,
 #earning-form,
-#invest-form {
+#note-form {
     display: none;
 }
 
@@ -125,6 +125,7 @@ label {
 
 .btn-primary {
     margin-top: 5px;
+    font-size: 0.8rem;
 }
 
 .template,

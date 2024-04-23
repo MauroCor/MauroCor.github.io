@@ -1,22 +1,24 @@
 document.addEventListener("DOMContentLoaded", function() {
     var fixedCostForm = document.getElementById("fixed-cost-form");
     var earningForm = document.getElementById("earning-form");
-    var investForm = document.getElementById("invest-form");
+    var investForm = document.getElementById("note-form");
 
     // Display & reset form
     document.getElementById("fixed-cost-button").addEventListener("click", function() {
         resetForm(fixedCostForm);
         fixedCostForm.style.display = "block";
         earningForm.style.display = "none";
+        document.getElementById('fixed_name').focus();
     });
 
     document.getElementById("earning-button").addEventListener("click", function() {
         resetForm(earningForm);
         earningForm.style.display = "block";
         fixedCostForm.style.display = "none";
+        document.getElementById('earning_name').focus();
     });
 
-    document.getElementById("invest-button").addEventListener("click", function() {
+    document.getElementById("note-button").addEventListener("click", function() {
         investForm.style.display = "block";
         // Select next month
         var nextMonth = (new Date().getMonth() + 2) % 12 || 12;
@@ -34,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function() {
         earningForm.style.display = "none";
     });
 
-    document.getElementById("cancel-invest-btn").addEventListener("click", function() {
+    document.getElementById("cancel-note-btn").addEventListener("click", function() {
         event.preventDefault();
         investForm.style.display = "none";
     });
@@ -60,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function() {
             var balValue = document.querySelector('.bal_' + btn.value).innerText;
             investForm.querySelectorAll('.out-inv')[0].innerText = oflwValue;
             investForm.querySelectorAll('.bal-inv')[0].innerText = balValue;
+            investForm.querySelectorAll('.tot-inv')[0].innerText = balValue;
             var template = investForm.querySelector('.template');
             var elementShown = false;
             investForm.querySelectorAll('.inv-summ').forEach(function(element) {
@@ -81,25 +84,25 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    document.getElementById("save-invest-btn").addEventListener("click", function() {
+    document.getElementById("save-note-btn").addEventListener("click", function() {
         event.preventDefault();
         var month = investForm.querySelector('.month_buttons button.selected').innerText;
-        var vwallet = investForm.querySelector('.out-inv').innerText;
-        var total = investForm.querySelector('.tot-inv').innerText;
+        var bills = investForm.querySelector('.out-inv').innerText;
+        var cash = investForm.querySelector('.tot-inv').innerText;
         var note = investForm.querySelector('#note-inv').value;
         investForm.querySelector('#month-inv').value = month;
-        investForm.querySelector('#vwallet-inv').value = vwallet;
-        investForm.querySelector('#total-inv').value = total;
+        investForm.querySelector('#bills-inv').value = bills;
+        investForm.querySelector('#cash-inv').value = cash;
         investForm.querySelector('#notes-inv').value = note;
         if (investForm.querySelector('.template').style.display != "none") {
             investForm.querySelectorAll('.template span')[0].innerText = month;
-            investForm.querySelectorAll('.template span')[1].innerText = vwallet;
-            investForm.querySelectorAll('.template span')[2].innerText = total;
+            investForm.querySelectorAll('.template span')[1].innerText = bills;
+            investForm.querySelectorAll('.template span')[2].innerText = cash;
             investForm.querySelectorAll('.template span')[3].innerText = note;
         } else {
             investForm.querySelectorAll('.focus span')[0].innerText = month;
-            investForm.querySelectorAll('.focus span')[1].innerText = vwallet;
-            investForm.querySelectorAll('.focus span')[2].innerText = total;
+            investForm.querySelectorAll('.focus span')[1].innerText = bills;
+            investForm.querySelectorAll('.focus span')[2].innerText = cash;
             investForm.querySelectorAll('.focus span')[3].innerText = note;
         }
     });
@@ -109,8 +112,8 @@ document.addEventListener("DOMContentLoaded", function() {
         var excessValue = excessInput ? parseInt(excessInput) : 0;
         var balText = document.querySelector('.bal-inv').innerText;
         var balValue = parseFloat(balText.replace(/[^\d.,-]/g, '').replace(',', '.').replace(/^(-?)(\d*)\.(.*)$/, '$1$2$3'));
-        var total = balValue + excessValue;
-        var formattedTotal = (total < 0 ? "-$" : "$") + Math.abs(total).toLocaleString('es-ES', { maximumFractionDigits: 0 });
+        var cash = balValue + excessValue;
+        var formattedTotal = (cash < 0 ? "-$" : "$") + Math.abs(cash).toLocaleString('es-ES', { maximumFractionDigits: 0 });
         investForm.querySelector('.tot-inv').innerText = formattedTotal;
     });
 
@@ -151,4 +154,6 @@ document.addEventListener("DOMContentLoaded", function() {
             setLineThrough(cell);
         });
     });
+
+    pastMonths();
 });

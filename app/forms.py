@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Earning, FixedCost, CardSpend, Invest
+from .models import Earning, FixedCost, CardSpend, Note
 
 
 class FixedCostForm(forms.ModelForm):
@@ -15,10 +15,10 @@ class EarningForm(forms.ModelForm):
         fields = ['month', 'name', 'price']
 
 
-class InvestForm(forms.ModelForm):
+class NoteForm(forms.ModelForm):
     class Meta:
-        model = Invest
-        fields = ['month', 'vwallet', 'total', 'note']
+        model = Note
+        fields = ['month', 'bills', 'cash', 'note']
 
 
 class CardSpendForm(forms.ModelForm):

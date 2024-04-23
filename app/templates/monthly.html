@@ -12,18 +12,18 @@
                 <a id="ok_edit_btn" style="display: none;">✅</a>
                 <a id="cancel_edit_btn" style="display: none;">✖️</a>
             </th>
-            <th>January</th>
-            <th>February</th>
-            <th>March</th>
-            <th>April</th>
-            <th>May</th>
-            <th>June</th>
-            <th>July</th>
-            <th>August</th>
-            <th>September</th>
-            <th>October</th>
-            <th>November</th>
-            <th>December</th>
+            <th onclick="toggleColumn(1)">January</th>
+            <th onclick="toggleColumn(2)">February</th>
+            <th onclick="toggleColumn(3)">March</th>
+            <th onclick="toggleColumn(4)">April</th>
+            <th onclick="toggleColumn(5)">May</th>
+            <th onclick="toggleColumn(6)">June</th>
+            <th onclick="toggleColumn(7)">July</th>
+            <th onclick="toggleColumn(8)">August</th>
+            <th onclick="toggleColumn(9)">September</th>
+            <th onclick="toggleColumn(10)">October</th>
+            <th onclick="toggleColumn(11)">November</th>
+            <th onclick="toggleColumn(12)">December</th>
         </tr>
         </thead>
         <tbody>
@@ -101,9 +101,9 @@
         </tbody>
     </table>
 </div>
-<button id="earning-button" type="submit" class="btn btn-primary">Set earning 📈</button>
-<button id="fixed-cost-button" type="submit" class="btn btn-primary">Set fixed cost 📉</button>
-<button id="invest-button" type="submit" class="btn btn-primary">Set invest 💹</button>
+<button id="earning-button" type="submit" class="btn btn-primary">📈 Earning</button>
+<button id="fixed-cost-button" type="submit" class="btn btn-primary">📉 Fixed cost</button>
+<button id="note-button" type="submit" class="btn btn-primary">📝 Note</button>
 <form id="fixed-cost-form" action="{% url 'set_fixed_cost' %}" method="post" class="mr-2">
     {% csrf_token %}
     <div>
@@ -178,7 +178,7 @@
     <button type="submit" class="btn btn-primary" style="margin-left: 70px">Set</button>
     <button id="cancel-earning-btn" type="submit" class="btn btn-primary">Cancel</button>
 </form>
-<form id="invest-form" action="{% url 'set_invest' %}" method="post" class="ml-2">
+<form id="note-form" action="{% url 'set_note' %}" method="post" class="ml-2">
     {% csrf_token %}
     <div>
         <div>
@@ -197,12 +197,12 @@
                 <button type="button" value="12">Dec</button>
             </div>
             <div>
-                <label>Virtual wallet:</label>
+                <label>Bills:</label>
                 <span class="cell-value out-inv">0</span>
             </div>
         </div>
         <div>
-            <label for="excess">Balance + last excess:</label>
+            <label for="excess">Cash:</label>
             <span class="cell-value bal-inv">0</span>
             <span> + </span>
             <input type="text" id="excess" maxlength="20" style="width: 70px">
@@ -210,23 +210,23 @@
             <span class="cell-value tot-inv">0</span>
         </div>
         <div>
-            <label for="note-inv">Note:</label>
-            <input type="text" id="note-inv" style="width: 350px">
+            <label for="note-inv">Decision:</label>
+            <input type="text" id="note-inv" style="width: 250px">
         </div>
-        <button id="save-invest-btn" style="margin-bottom: 5px; margin-left: 170px" class="btn btn-primary">Save</button>
-        {% for invest in invests %}
+        <button id="save-note-btn" style="margin-bottom: 5px; margin-left: 170px" class="btn btn-primary">Preview</button>
+        {% for note in notes %}
         <div class="inv-summ">
             <div>
                 <label>Month</label>
-                <span>{{ invest.month }}</span>
-                <label>V-wall</label>
-                <span>{{ invest.vwallet }}</span>
+                <span>{{ note.month }}</span>
+                <label>Bills</label>
+                <span>{{ note.bills }}</span>
             </div>
             <div>
-                <label>Total</label>
-                <span>{{ invest.total }}</span>
-                <label>Notes</label>
-                <span>{{ invest.note }}</span>
+                <label>Cash</label>
+                <span>{{ note.cash }}</span>
+                <label>Decision</label>
+                <span>{{ note.note }}</span>
             </div>
         </div>
         {% endfor %}
@@ -234,22 +234,22 @@
             <div>
                 <label>Month</label>
                 <span>-</span>
-                <label>V-wall</label>
+                <label>Bills</label>
                 <span>-</span>
             </div>
             <div>
-                <label>Total</label>
+                <label>Cash</label>
                 <span>-</span>
                 <label>Notes</label>
                 <span>-</span>
             </div>
         </div>
         <input type="hidden" name="month" id="month-inv">
-        <input type="hidden" name="vwallet" id="vwallet-inv">
-        <input type="hidden" name="total" id="total-inv">
+        <input type="hidden" name="bills" id="bills-inv">
+        <input type="hidden" name="cash" id="cash-inv">
         <input type="hidden" name="note" id="notes-inv">
     </div>
-    <button type="submit" class="btn btn-primary" style="margin-left: 145px">Set</button>
-    <button id="cancel-invest-btn" type="submit" class="btn btn-primary">Cancel</button>
+    <button type="submit" class="btn btn-primary" style="margin-left: 145px">Save</button>
+    <button id="cancel-note-btn" type="submit" class="btn btn-primary">Cancel</button>
 </form>
 {% endblock %}
