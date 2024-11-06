@@ -9,21 +9,32 @@ class FixedCost(models.Model):
     date_from = models.CharField(
         max_length=7,
         validators=[
-            RegexValidator(regex=r'^\d{4}-\d{2}$', message='Fecha debe estar en formato YYYY-MM'),
+            RegexValidator(regex=r'^\d{4}-\d{2}$', message='Format date should be YYYY-MM'),
         ]
     )
     date_to = models.CharField(
         max_length=7,
         validators=[
-            RegexValidator(regex=r'^\d{4}-\d{2}$', message='Fecha debe estar en formato YYYY-MM'),
+            RegexValidator(regex=r'^\d{4}-\d{2}$', message='Format date should be YYYY-MM'),
         ]
     )
 
 
-class Earning(models.Model):
-    month = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(12)])
+class Income(models.Model):
     name = models.CharField(max_length=20)
     price = models.DecimalField(max_digits=9, decimal_places=0)
+    date_from = models.CharField(
+        max_length=7,
+        validators=[
+            RegexValidator(regex=r'^\d{4}-\d{2}$', message='Format date should be YYYY-MM'),
+        ]
+    )
+    date_to = models.CharField(
+        max_length=7,
+        validators=[
+            RegexValidator(regex=r'^\d{4}-\d{2}$', message='Format date should be YYYY-MM'),
+        ]
+    )
 
 
 class CardSpend(models.Model):
