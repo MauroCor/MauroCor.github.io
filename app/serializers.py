@@ -8,22 +8,33 @@ class FixedCostSerializer(serializers.ModelSerializer):
         model = FixedCost
         fields = ('name', 'price', 'date_from', 'date_to')
         extra_kwargs = {
-            'date_to': {'required': False}  # Asegura que 'date_to' no sea obligatorio
+            'date_to': {'required': False}
         }
 
     def validate(self, data):
-        # Convertir la fecha 'date_from' de string a datetime
-        date_from = datetime.strptime(data.get('date_from'), "%Y-%m")
+            # Convertimos date_from y date_to a objetos datetime para la comparación
+            date_from = datetime.strptime(data.get('date_from'), "%Y-%m")
+            date_to = data.get('date_to')
+            if date_to:
+                date_to = datetime.strptime(date_to, "%Y-%m")
+            else:
+                # Si date_to no está especificado, asumir un año después de date_from
+                date_to = date_from.replace(year=date_from.year + 1)
+                data['date_to'] = date_to.strftime("%Y-%m")  # Convertir nuevamente a string
 
-        # Si no se proporciona 'date_to', lo configuramos como un año después de 'date_from'
-        if not data.get('date_to'):
-            date_to = date_from.replace(year=date_from.year + 1)
-            data['date_to'] = date_to.strftime("%Y-%m")  # Convierte de nuevo a formato string
-        
-        # Validar si 'date_to' no es menor a 'date_from'
-        elif data.get('date_to'):
-            date_to = datetime.strptime(data['date_to'], "%Y-%m")
-            if date_to < date_from:
-                raise serializers.ValidationError("La fecha de fin no puede ser anterior a la fecha de inicio.")
-        
-        return data
+            # Verificar si estamos en modo de actualización
+            instance_id = self.instance.id if self.instance else None
+
+            # Validar si ya existe un gasto fijo con el mismo nombre y fechas superpuestas (excluyendo el mismo registro en actualizaciones)
+            overlapping_costs = FixedCost.objects.filter(
+                name=data['name'],
+                date_from__lte=date_to,
+                date_to__gte=date_from
+            ).exclude(id=instance_id)
+
+            if overlapping_costs.exists():
+                raise serializers.ValidationError(
+                   f"'{data['name']}' already exist between these dates."
+                )
+
+            return data
