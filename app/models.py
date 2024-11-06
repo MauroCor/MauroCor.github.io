@@ -1,11 +1,23 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.core.validators import RegexValidator
 
 
 class FixedCost(models.Model):
-    month = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(12)])
     name = models.CharField(max_length=20)
     price = models.DecimalField(max_digits=9, decimal_places=0)
+    date_from = models.CharField(
+        max_length=7,
+        validators=[
+            RegexValidator(regex=r'^\d{4}-\d{2}$', message='Fecha debe estar en formato YYYY-MM'),
+        ]
+    )
+    date_to = models.CharField(
+        max_length=7,
+        validators=[
+            RegexValidator(regex=r'^\d{4}-\d{2}$', message='Fecha debe estar en formato YYYY-MM'),
+        ]
+    )
 
 
 class Earning(models.Model):
