@@ -13,7 +13,7 @@ class FixedCostListView(APIView):
         fixed_costs = FixedCost.objects.all()
         serialized_data = FixedCostSerializer(fixed_costs, many=True).data
 
-        grouped_data = defaultdict(list)
+        grouped_data = defaultdict(lambda: {"fixedCost": [], "total": 0})
 
         for item in serialized_data:
             date_from = datetime.strptime(item['date_from'], "%Y-%m")
@@ -23,21 +23,27 @@ class FixedCostListView(APIView):
             current_date = date_from
             while current_date <= date_to:
                 month_key = current_date.strftime("%Y-%m")
-                grouped_data[month_key].append({
+                price = int(item['price'])
+                
+                # Agregar el registro al mes correspondiente y sumar su precio al total del mes
+                grouped_data[month_key]["fixedCost"].append({
                     "name": item['name'],
-                    "price": item['price'],
+                    "price": price,
                     "date_from": item['date_from'],
                     "date_to": item['date_to']
                 })
+                grouped_data[month_key]["total"] += price
                 current_date += relativedelta(months=1)
 
-        response_data = [
+        # Formato de respuesta agrupado por fecha y ordenado cronológicamente
+        response_data = sorted([
             {
                 "date": month,
-                "fixedCost": costs
+                "fixedCost": data["fixedCost"],
+                "total": data["total"]
             }
-            for month, costs in grouped_data.items()
-        ]
+            for month, data in grouped_data.items()
+        ], key=lambda x: x["date"])
 
         return Response(response_data)
 
@@ -91,10 +97,10 @@ class FixedCostListView(APIView):
 class IncomeListView(APIView):
 
     def get(self, request):
-        fixed_costs = Income.objects.all()
-        serialized_data = IncomeSerializer(fixed_costs, many=True).data
+        income = Income.objects.all()
+        serialized_data = IncomeSerializer(income, many=True).data
 
-        grouped_data = defaultdict(list)
+        grouped_data = defaultdict(lambda: {"income": [], "total": 0})
 
         for item in serialized_data:
             date_from = datetime.strptime(item['date_from'], "%Y-%m")
@@ -104,21 +110,27 @@ class IncomeListView(APIView):
             current_date = date_from
             while current_date <= date_to:
                 month_key = current_date.strftime("%Y-%m")
-                grouped_data[month_key].append({
+                price = int(item['price'])
+                
+                # Agregar el registro al mes correspondiente y sumar su precio al total del mes
+                grouped_data[month_key]["income"].append({
                     "name": item['name'],
-                    "price": item['price'],
+                    "price": price,
                     "date_from": item['date_from'],
                     "date_to": item['date_to']
                 })
+                grouped_data[month_key]["total"] += price
                 current_date += relativedelta(months=1)
 
-        response_data = [
+        # Formato de respuesta agrupado por fecha y ordenado cronológicamente
+        response_data = sorted([
             {
                 "date": month,
-                "fixedCost": costs
+                "income": data["income"],
+                "total": data["total"]
             }
-            for month, costs in grouped_data.items()
-        ]
+            for month, data in grouped_data.items()
+        ], key=lambda x: x["date"])
 
         return Response(response_data)
 
