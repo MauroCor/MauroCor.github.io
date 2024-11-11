@@ -8,7 +8,7 @@ class FixedCostSerializer(serializers.ModelSerializer):
         model = FixedCost
         fields = ('name', 'price', 'date_from', 'date_to')
         extra_kwargs = {
-            'date_to': {'required': False}
+            'date_to': {'required': False, 'allow_null': True}
         }
 
     def validate(self, data):
@@ -44,7 +44,7 @@ class IncomeSerializer(serializers.ModelSerializer):
         model = Income
         fields = ('name', 'price', 'date_from', 'date_to')
         extra_kwargs = {
-            'date_to': {'required': False}
+            'date_to': {'required': False, 'allow_null': True}
         }
 
     def validate(self, data):

@@ -60,10 +60,3 @@ class InstallmentPayment(models.Model):
                 fee_value=card_spend.price / card_spend.fees,
                 month=month,
                 fee_num=fee_num)
-
-
-class Note(models.Model):
-    month = models.CharField(max_length=3)
-    bills = models.CharField(max_length=10)
-    cash = models.CharField(max_length=10)
-    note = models.CharField(max_length=50)
