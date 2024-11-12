@@ -2,8 +2,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from datetime import datetime
-from app.models import FixedCost, Income
-from app.serializers import FixedCostSerializer, IncomeSerializer
+from app.models import CardSpend, FixedCost, Income
+from app.serializers import CardSpendSerializer, FixedCostSerializer, IncomeSerializer
 from collections import defaultdict
 from dateutil.relativedelta import relativedelta
 
@@ -180,3 +180,56 @@ class IncomeListView(APIView):
             fixed_costs.delete()
 
             return Response({"detail": f"'{name_to_delete}' deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+    
+class CardSpendListView(APIView):
+
+    def get(self, request):
+        card_spend = CardSpend.objects.all()
+        serialized_data = CardSpendSerializer(card_spend, many=True).data
+
+        grouped_data = defaultdict(lambda: {"cardSpend": [], "total": 0})
+
+        for item in serialized_data:
+            date_from = datetime.strptime(item['date_from'], "%Y-%m")
+            price = int(item['price'])
+            fees = int(item['fees'])
+
+            # Generar cuotas para cada mes dentro del rango
+            for fee_num in range(1, fees + 1):
+                month_key = date_from.strftime("%Y-%m")
+                
+                grouped_data[month_key]["cardSpend"].append({
+                    "id": item['id'],
+                    "name": item['name'],
+                    "price": price / fees,
+                    "installment": f"{fee_num}/{fees}"
+                })
+                grouped_data[month_key]["total"] += price / fees
+                date_from += relativedelta(months=1)
+
+        # Formato de respuesta agrupado por fecha y ordenado cronológicamente
+        response_data = sorted([
+            {
+                "date": month,
+                "cardSpend": data["cardSpend"],
+                "total": round(data["total"])
+            }
+            for month, data in grouped_data.items()
+        ], key=lambda x: x["date"])
+
+        return Response(response_data)
+
+    def post(self, request):
+            serializer = CardSpendSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            card_spend = CardSpend.objects.get(pk=pk)
+            card_spend.delete()
+            return Response({'message': 'Card spend deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        except CardSpend.DoesNotExist:
+            return Response({'error': 'Card spend not found'}, status=status.HTTP_404_NOT_FOUND)

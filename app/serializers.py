@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from datetime import datetime
 
-from app.models import FixedCost, Income
+from app.models import CardSpend, FixedCost, Income
 
 class FixedCostSerializer(serializers.ModelSerializer):
     class Meta:
@@ -70,3 +70,8 @@ class IncomeSerializer(serializers.ModelSerializer):
                 )
 
             return data
+
+class CardSpendSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CardSpend
+        fields = ('id', 'name', 'price', 'fees', 'date_from')
