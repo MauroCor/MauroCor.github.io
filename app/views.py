@@ -19,13 +19,11 @@ class FixedCostListView(APIView):
             date_from = datetime.strptime(item['date_from'], "%Y-%m")
             date_to = datetime.strptime(item['date_to'], "%Y-%m")
 
-            # Generar los meses entre la fecha de inicio y la fecha de fin
             current_date = date_from
             while current_date <= date_to:
                 month_key = current_date.strftime("%Y-%m")
                 price = int(item['price'])
                 
-                # Agregar el registro al mes correspondiente y sumar su precio al total del mes
                 grouped_data[month_key]["fixedCost"].append({
                     "name": item['name'],
                     "price": price,
@@ -35,12 +33,45 @@ class FixedCostListView(APIView):
                 grouped_data[month_key]["total"] += price
                 current_date += relativedelta(months=1)
 
-        # Formato de respuesta agrupado por fecha y ordenado cronológicamente
+        # Obtener CardSpend
+        card_spends = CardSpend.objects.all()
+
+        for card_spend in card_spends:
+            date_from = datetime.strptime(card_spend.date_from, "%Y-%m")
+            price = card_spend.price
+            fees = card_spend.fees
+
+            monthly_payment = price / fees
+
+            for fee_num in range(1, fees + 1):
+                month_key = date_from.strftime("%Y-%m")
+                grouped_data[month_key]["total"] += monthly_payment
+                date_from += relativedelta(months=1)
+
+        for month_key, data in grouped_data.items():
+            tarjeta_total = 0
+            for card_spend in card_spends:
+                date_from = datetime.strptime(card_spend.date_from, "%Y-%m")
+                price = card_spend.price
+                fees = card_spend.fees
+                date_to = date_from + relativedelta(months=fees-1)
+
+                if date_from <= datetime.strptime(month_key, "%Y-%m") <= date_to:
+                    monthly_payment = price / fees
+                    tarjeta_total += monthly_payment
+
+            if tarjeta_total > 0:
+                data["fixedCost"].append({
+                    "name": "Tarjeta",
+                    "price": round(tarjeta_total)
+                })
+
+        # Respuesta por fecha y orden cronologico
         response_data = sorted([
             {
                 "date": month,
                 "fixedCost": data["fixedCost"],
-                "total": data["total"]
+                "total": round(data["total"])
             }
             for month, data in grouped_data.items()
         ], key=lambda x: x["date"])
