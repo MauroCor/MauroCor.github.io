@@ -12,20 +12,19 @@ class FixedCostSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
-            # Convertimos date_from y date_to a objetos datetime para la comparación
+        if not self.instance:
             date_from = datetime.strptime(data.get('date_from'), "%Y-%m")
             date_to = data.get('date_to')
             if date_to:
                 date_to = datetime.strptime(date_to, "%Y-%m")
             else:
-                # Si date_to no está especificado, asumir un año después de date_from
+                # Si date_to = null, asumir un año después de date_from
                 date_to = date_from.replace(year=date_from.year + 1)
                 data['date_to'] = date_to.strftime("%Y-%m")
 
-            # Verificar si estamos en modo de actualización
             instance_id = self.instance.id if self.instance else None
 
-            # Validar si ya existe un registro con el mismo nombre y fechas superpuestas (excluyendo el mismo registro en actualizaciones)
+            # Validar fechas superpuestas
             overlapping_costs = FixedCost.objects.filter(
                 name=data['name'],
                 date_from__lte=date_to,
@@ -36,8 +35,7 @@ class FixedCostSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                    f"'{data['name']}' already exist between these dates."
                 )
-
-            return data
+        return data
 
 class IncomeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -48,6 +46,7 @@ class IncomeSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
+        if not self.instance:
             date_from = datetime.strptime(data.get('date_from'), "%Y-%m")
             date_to = data.get('date_to')
             if date_to:
@@ -69,7 +68,7 @@ class IncomeSerializer(serializers.ModelSerializer):
                    f"'{data['name']}' already exist between these dates."
                 )
 
-            return data
+        return data
 
 class CardSpendSerializer(serializers.ModelSerializer):
     class Meta:
