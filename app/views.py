@@ -6,11 +6,13 @@ from app.models import CardSpend, FixedCost, Income
 from app.serializers import CardSpendSerializer, FixedCostSerializer, IncomeSerializer
 from collections import defaultdict
 from dateutil.relativedelta import relativedelta
+from rest_framework.permissions import IsAuthenticated
 
 class FixedCostListView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        fixed_costs = FixedCost.objects.all()
+        fixed_costs = FixedCost.objects.filter(user=request.user)
         serialized_data = FixedCostSerializer(fixed_costs, many=True).data
 
         grouped_data = defaultdict(lambda: {"fixedCost": [], "total": 0})
@@ -34,7 +36,7 @@ class FixedCostListView(APIView):
                 current_date += relativedelta(months=1)
 
         # Obtener CardSpend
-        card_spends = CardSpend.objects.all()
+        card_spends = CardSpend.objects.filter(user=request.user)
 
         for card_spend in card_spends:
             date_from = datetime.strptime(card_spend.date_from, "%Y-%m")
@@ -79,6 +81,8 @@ class FixedCostListView(APIView):
         return Response(response_data)
 
     def post(self, request):
+            request.data['user'] = request.user.id
+
             serializer = FixedCostSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -95,6 +99,7 @@ class FixedCostListView(APIView):
         existing_record = FixedCost.objects.filter(
             name=new_data['name'],
             date_from=new_data['date_from'],
+            user=request.user
         ).first()
         
         if existing_record:
@@ -108,12 +113,13 @@ class FixedCostListView(APIView):
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"detail": "element not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": "Element not found."}, status=status.HTTP_404_NOT_FOUND)
     
 class IncomeListView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        income = Income.objects.all()
+        income = Income.objects.filter(user=request.user)
         serialized_data = IncomeSerializer(income, many=True).data
 
         grouped_data = defaultdict(lambda: {"income": [], "total": 0})
@@ -151,6 +157,7 @@ class IncomeListView(APIView):
         return Response(response_data)
 
     def post(self, request):
+            request.data['user'] = request.user.id
             serializer = IncomeSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -167,6 +174,7 @@ class IncomeListView(APIView):
         existing_record = Income.objects.filter(
             name=new_data['name'],
             date_from=new_data['date_from'],
+            user=request.user
         ).first()
         
         if existing_record:
@@ -183,9 +191,10 @@ class IncomeListView(APIView):
         return Response({"detail": "element not found."}, status=status.HTTP_404_NOT_FOUND)
     
 class CardSpendListView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        card_spend = CardSpend.objects.all()
+        card_spend = CardSpend.objects.filter(user=request.user)
         serialized_data = CardSpendSerializer(card_spend, many=True).data
 
         grouped_data = defaultdict(lambda: {"cardSpend": [], "total": 0})
@@ -221,6 +230,7 @@ class CardSpendListView(APIView):
         return Response(response_data)
 
     def post(self, request):
+            request.data['user'] = request.user.id
             serializer = CardSpendSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -229,7 +239,7 @@ class CardSpendListView(APIView):
 
     def delete(self, request, pk):
         try:
-            card_spend = CardSpend.objects.get(pk=pk)
+            card_spend = CardSpend.objects.get(pk=pk, user=request.user)
             card_spend.delete()
             return Response({'message': 'Card spend deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except CardSpend.DoesNotExist:

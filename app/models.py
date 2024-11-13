@@ -1,9 +1,11 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.core.validators import RegexValidator
+from django.contrib.auth.models import User
 
 
 class FixedCost(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=20)
     price = models.DecimalField(max_digits=9, decimal_places=0)
     date_from = models.CharField(
@@ -21,6 +23,7 @@ class FixedCost(models.Model):
 
 
 class Income(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=20)
     price = models.DecimalField(max_digits=9, decimal_places=0)
     date_from = models.CharField(
@@ -38,6 +41,7 @@ class Income(models.Model):
 
 
 class CardSpend(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=20)
     price = models.DecimalField(max_digits=9, decimal_places=0)
     fees = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(36)])
