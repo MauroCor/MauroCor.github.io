@@ -23,9 +23,12 @@ class FixedCostSerializer(serializers.ModelSerializer):
                 data['date_to'] = date_to.strftime("%Y-%m")
 
             instance_id = self.instance.id if self.instance else None
-
+            
+            user_id = data.get('user')
+            
             # Validar fechas superpuestas
             overlapping_costs = FixedCost.objects.filter(
+                user_id=user_id,
                 name=data['name'],
                 date_from__lte=date_to,
                 date_to__gte=date_from
@@ -57,7 +60,10 @@ class IncomeSerializer(serializers.ModelSerializer):
 
             instance_id = self.instance.id if self.instance else None
 
+            user_id = data.get('user')
+
             overlapping_costs = Income.objects.filter(
+                user_id=user_id,
                 name=data['name'],
                 date_from__lte=date_to,
                 date_to__gte=date_from
