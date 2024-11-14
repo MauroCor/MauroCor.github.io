@@ -13,7 +13,7 @@ class FixedCostListView(APIView):
 
     def get(self, request):
         fixed_costs = FixedCost.objects.filter(user=request.user)
-        serialized_data = FixedCostSerializer(fixed_costs, many=True).data
+        serialized_data = FixedCostSerializer(fixed_costs, many=True, context={'request': request}).data
 
         grouped_data = defaultdict(lambda: {"fixedCost": [], "total": 0})
 
@@ -83,7 +83,7 @@ class FixedCostListView(APIView):
     def post(self, request):
             request.data['user'] = request.user.id
 
-            serializer = FixedCostSerializer(data=request.data)
+            serializer = FixedCostSerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -107,7 +107,7 @@ class FixedCostListView(APIView):
                 existing_record.delete()
                 return Response({"detail": "Element deleted."}, status=status.HTTP_204_NO_CONTENT)
   
-            serializer = FixedCostSerializer(existing_record, data={'date_to': new_date_to}, partial=True)
+            serializer = FixedCostSerializer(existing_record, data={'date_to': new_date_to}, partial=True, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -125,7 +125,7 @@ class FixedCostListView(APIView):
 
         # Si encontramos un registro con los mismos name y date_from actualizar ese registro
         if existing_record:
-            serializer = FixedCostSerializer(existing_record, data=new_data, partial=True)
+            serializer = FixedCostSerializer(existing_record, data=new_data, partial=True, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -146,7 +146,7 @@ class IncomeListView(APIView):
 
     def get(self, request):
         income = Income.objects.filter(user=request.user)
-        serialized_data = IncomeSerializer(income, many=True).data
+        serialized_data = IncomeSerializer(income, many=True, context={'request': request}).data
 
         grouped_data = defaultdict(lambda: {"income": [], "total": 0})
 
@@ -184,7 +184,7 @@ class IncomeListView(APIView):
 
     def post(self, request):
             request.data['user'] = request.user.id
-            serializer = IncomeSerializer(data=request.data)
+            serializer = IncomeSerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -208,7 +208,7 @@ class IncomeListView(APIView):
                 existing_record.delete()
                 return Response({"detail": "Element deleted."}, status=status.HTTP_204_NO_CONTENT)
   
-            serializer = IncomeSerializer(existing_record, data={'date_to': new_date_to}, partial=True)
+            serializer = IncomeSerializer(existing_record, data={'date_to': new_date_to}, partial=True, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -226,7 +226,7 @@ class IncomeListView(APIView):
 
         # Si encontramos un registro con los mismos name y date_from actualizar ese registro
         if existing_record:
-            serializer = IncomeSerializer(existing_record, data=new_data, partial=True)
+            serializer = IncomeSerializer(existing_record, data=new_data, partial=True, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -246,7 +246,7 @@ class CardSpendListView(APIView):
 
     def get(self, request):
         card_spend = CardSpend.objects.filter(user=request.user)
-        serialized_data = CardSpendSerializer(card_spend, many=True).data
+        serialized_data = CardSpendSerializer(card_spend, many=True, context={'request': request}).data
 
         grouped_data = defaultdict(lambda: {"cardSpend": [], "total": 0})
 
@@ -282,7 +282,7 @@ class CardSpendListView(APIView):
 
     def post(self, request):
             request.data['user'] = request.user.id
-            serializer = CardSpendSerializer(data=request.data)
+            serializer = CardSpendSerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)

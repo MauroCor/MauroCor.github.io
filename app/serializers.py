@@ -12,7 +12,7 @@ class FixedCostSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
-        if not self.instance:
+        if self.context.get('request') and self.context['request'].method != 'PATCH':
             date_from = datetime.strptime(data.get('date_from'), "%Y-%m")
             date_to = data.get('date_to')
             if date_to:
@@ -36,7 +36,7 @@ class FixedCostSerializer(serializers.ModelSerializer):
 
             if overlapping_costs.exists():
                 raise serializers.ValidationError(
-                   f"'{data['name']}' already exist between these dates."
+                    f"'{data['name']}' already exist between these dates."
                 )
         return data
 
