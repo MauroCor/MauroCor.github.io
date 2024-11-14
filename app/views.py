@@ -22,7 +22,7 @@ class FixedCostListView(APIView):
             date_to = datetime.strptime(item['date_to'], "%Y-%m")
 
             current_date = date_from
-            while current_date < date_to:
+            while current_date <= date_to:
                 month_key = current_date.strftime("%Y-%m")
                 price = int(item['price'])
                 
@@ -115,6 +115,32 @@ class FixedCostListView(APIView):
 
         return Response({"detail": "Element not found."}, status=status.HTTP_404_NOT_FOUND)
     
+    def put(self, request):
+        new_data = request.data
+
+        existing_record = FixedCost.objects.filter(
+            name=new_data['name'],
+            date_from=new_data['date_from'],
+        ).first()
+
+        # Si encontramos un registro con los mismos name y date_from actualizar ese registro
+        if existing_record:
+            serializer = FixedCostSerializer(existing_record, data=new_data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Modificar los registros anteriores para evitar la superposición de fechas
+        existing_fixed_costs = FixedCost.objects.filter(name=new_data['name'])
+        for fixed_cost in existing_fixed_costs:
+            if fixed_cost.date_to >= new_data['date_from']:
+                fixed_cost.date_to = (datetime.strptime(new_data['date_from'], "%Y-%m") - relativedelta(months=1)).strftime("%Y-%m")
+                fixed_cost.save()
+
+        return self.post(request)
+
+
 class IncomeListView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -130,7 +156,7 @@ class IncomeListView(APIView):
 
             # Generar los meses entre la fecha de inicio y la fecha de fin
             current_date = date_from
-            while current_date < date_to:
+            while current_date <= date_to:
                 month_key = current_date.strftime("%Y-%m")
                 price = int(item['price'])
                 
@@ -190,6 +216,31 @@ class IncomeListView(APIView):
 
         return Response({"detail": "element not found."}, status=status.HTTP_404_NOT_FOUND)
     
+    def put(self, request):
+        new_data = request.data
+
+        existing_record = Income.objects.filter(
+            name=new_data['name'],
+            date_from=new_data['date_from'],
+        ).first()
+
+        # Si encontramos un registro con los mismos name y date_from actualizar ese registro
+        if existing_record:
+            serializer = IncomeSerializer(existing_record, data=new_data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Modificar los registros anteriores para evitar la superposición de fechas
+        existing_incomes = Income.objects.filter(name=new_data['name'])
+        for income in existing_incomes:
+            if income.date_to >= new_data['date_from']:
+                income.date_to = (datetime.strptime(new_data['date_from'], "%Y-%m") - relativedelta(months=1)).strftime("%Y-%m")
+                income.save()
+
+        return self.post(request)
+
 class CardSpendListView(APIView):
     permission_classes = [IsAuthenticated]
 
