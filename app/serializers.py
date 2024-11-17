@@ -3,6 +3,7 @@ from datetime import datetime
 
 from app.models import CardSpend, FixedCost, Income
 
+
 class FixedCostSerializer(serializers.ModelSerializer):
     class Meta:
         model = FixedCost
@@ -23,9 +24,9 @@ class FixedCostSerializer(serializers.ModelSerializer):
                 data['date_to'] = date_to.strftime("%Y-%m")
 
             instance_id = self.instance.id if self.instance else None
-            
+
             user_id = data.get('user')
-            
+
             # Validar fechas superpuestas
             overlapping_costs = FixedCost.objects.filter(
                 user_id=user_id,
@@ -40,6 +41,7 @@ class FixedCostSerializer(serializers.ModelSerializer):
                 )
         return data
 
+
 class IncomeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Income
@@ -49,12 +51,13 @@ class IncomeSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
-        if not self.instance:
+        if self.context.get('request') and self.context['request'].method != 'PATCH':
             date_from = datetime.strptime(data.get('date_from'), "%Y-%m")
             date_to = data.get('date_to')
             if date_to:
                 date_to = datetime.strptime(date_to, "%Y-%m")
             else:
+                # Si date_to = null, asumir un año después de date_from
                 date_to = date_from.replace(year=date_from.year + 1)
                 data['date_to'] = date_to.strftime("%Y-%m")
 
@@ -62,6 +65,7 @@ class IncomeSerializer(serializers.ModelSerializer):
 
             user_id = data.get('user')
 
+            # Validar fechas superpuestas
             overlapping_costs = Income.objects.filter(
                 user_id=user_id,
                 name=data['name'],
@@ -71,10 +75,10 @@ class IncomeSerializer(serializers.ModelSerializer):
 
             if overlapping_costs.exists():
                 raise serializers.ValidationError(
-                   f"'{data['name']}' already exist between these dates."
+                    f"'{data['name']}' already exist between these dates."
                 )
-
         return data
+
 
 class CardSpendSerializer(serializers.ModelSerializer):
     class Meta:
