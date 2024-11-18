@@ -103,7 +103,7 @@ class FixedCostListView(APIView):
         ).first()
         
         if existing_record:
-            if new_date_to == new_data['date_from']:
+            if new_date_to < new_data['date_from']:
                 existing_record.delete()
                 return Response({"detail": "Element deleted."}, status=status.HTTP_204_NO_CONTENT)
   
@@ -204,7 +204,7 @@ class IncomeListView(APIView):
         ).first()
         
         if existing_record:
-            if new_date_to == new_data['date_from']:
+            if new_date_to < new_data['date_from']:
                 existing_record.delete()
                 return Response({"detail": "Element deleted."}, status=status.HTTP_204_NO_CONTENT)
   
