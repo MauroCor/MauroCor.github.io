@@ -117,12 +117,11 @@ class FixedCostListView(APIView):
     
     def put(self, request):
         new_data = request.data
-
         existing_record = FixedCost.objects.filter(
             name=new_data['name'],
             date_from=new_data['date_from'],
         ).first()
-
+        
         # Si encontramos un registro con los mismos name y date_from actualizar ese registro
         if existing_record:
             serializer = FixedCostSerializer(existing_record, data=new_data, partial=True, context={'request': request})
