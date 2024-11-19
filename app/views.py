@@ -2,8 +2,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from datetime import datetime
-from app.models import CardSpend, FixedCost, Income
-from app.serializers import CardSpendSerializer, FixedCostSerializer, IncomeSerializer
+from app.models import CardSpend, FixedCost, Income, Saving
+from app.serializers import CardSpendSerializer, FixedCostSerializer, IncomeSerializer, SavingSerializer
 from collections import defaultdict
 from dateutil.relativedelta import relativedelta
 from rest_framework.permissions import IsAuthenticated
@@ -294,3 +294,65 @@ class CardSpendListView(APIView):
             return Response({'message': 'Card spend deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except CardSpend.DoesNotExist:
             return Response({'error': 'Card spend not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+class SavingListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        saving = Saving.objects.filter(user=request.user)
+        serialized_data = SavingSerializer(saving, many=True, context={'request': request}).data
+
+        grouped_data = defaultdict(lambda: {"saving": [], "total": 0})
+
+        for item in serialized_data:
+            date_from = datetime.strptime(item['date_from'], "%Y-%m")
+            date_to = datetime.strptime(item['date_to'], "%Y-%m")
+
+            current_date = date_from
+            while current_date <= date_to:
+                month_key = current_date.strftime("%Y-%m")
+                invested = int(item['invested'])
+                obtained = int(item['obtained'])
+                
+                grouped_data[month_key]["saving"].append({
+                    "id": item['id'],
+                    "name": item['name'],
+                    "invested": invested,
+                    "obtained": obtained,
+                    "date_from": item['date_from'],
+                    "date_to": item['date_to']
+                })
+                
+                if current_date == date_to:
+                    grouped_data[month_key]["total"] += obtained
+                else:
+                    grouped_data[month_key]["total"] += invested
+                
+                current_date += relativedelta(months=1)
+
+        response_data = sorted([
+            {
+                "date": month,
+                "saving": data["saving"],
+                "total": data["total"]
+            }
+            for month, data in grouped_data.items()
+        ], key=lambda x: x["date"])
+
+        return Response(response_data)
+
+    def post(self, request):
+            request.data['user'] = request.user.id
+            serializer = SavingSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            card_spend = Saving.objects.get(pk=pk, user=request.user)
+            card_spend.delete()
+            return Response({'message': 'Saving deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        except CardSpend.DoesNotExist:
+            return Response({'error': 'Saving not found'}, status=status.HTTP_404_NOT_FOUND)

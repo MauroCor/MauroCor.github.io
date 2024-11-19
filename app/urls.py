@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CardSpendListView, FixedCostListView, IncomeListView
+from .views import CardSpendListView, FixedCostListView, IncomeListView, SavingListView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -12,4 +12,6 @@ urlpatterns = [
     path('api/income/', IncomeListView.as_view(), name='income'),
     path('api/card-spend/', CardSpendListView.as_view(), name='card_spend'),
     path('api/card-spend/<int:pk>/', CardSpendListView.as_view(), name='cardspend-delete'),
+    path('api/saving/', SavingListView.as_view(), name='saving'),
+    path('api/saving/<int:pk>/', SavingListView.as_view(), name='saving-delete'),
 ]

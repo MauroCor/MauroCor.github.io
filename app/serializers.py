@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from datetime import datetime
 
-from app.models import CardSpend, FixedCost, Income
+from app.models import CardSpend, FixedCost, Income, Saving
 
 
 class FixedCostSerializer(serializers.ModelSerializer):
@@ -16,7 +16,7 @@ class FixedCostSerializer(serializers.ModelSerializer):
         if self.context.get('request') and self.context['request'].method != 'PATCH':
             date_from = datetime.strptime(data.get('date_from'), "%Y-%m")
             date_to = data.get('date_to')
-            
+
             if date_to:
                 date_to = datetime.strptime(date_to, "%Y-%m")
             else:
@@ -34,7 +34,7 @@ class FixedCostSerializer(serializers.ModelSerializer):
                     date_from__lte=date_to,
                     date_to__gte=date_from
                 ).exclude(id=instance_id)
-                
+
                 if overlapping_costs.exists():
                     raise serializers.ValidationError(
                         f"'{data['name']}' already exist between these dates."
@@ -71,7 +71,7 @@ class IncomeSerializer(serializers.ModelSerializer):
                     date_from__lte=date_to,
                     date_to__gte=date_from
                 ).exclude(id=instance_id)
-                
+
                 if overlapping_costs.exists():
                     raise serializers.ValidationError(
                         f"'{data['name']}' already exist between these dates."
@@ -83,3 +83,10 @@ class CardSpendSerializer(serializers.ModelSerializer):
     class Meta:
         model = CardSpend
         fields = ('id', 'name', 'price', 'fees', 'date_from', 'user')
+
+
+class SavingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Saving
+        fields = ('id', 'name', 'invested', 'obtained',
+                  'date_from', 'date_to', 'user')

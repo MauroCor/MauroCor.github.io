@@ -51,3 +51,24 @@ class CardSpend(models.Model):
             RegexValidator(regex=r'^\d{4}-\d{2}$', message='Format date should be YYYY-MM'),
         ]
     )
+
+class Saving(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=20)
+    invested = models.DecimalField(max_digits=9, decimal_places=0)
+    obtained = models.DecimalField(max_digits=9, decimal_places=0)
+    date_from = models.CharField(
+        max_length=7,
+        validators=[
+            RegexValidator(regex=r'^\d{4}-\d{2}$', message='Format date should be YYYY-MM'),
+        ]
+    )
+    date_to = models.CharField(
+        max_length=7,
+        validators=[
+            RegexValidator(regex=r'^\d{4}-\d{2}$', message='Format date should be YYYY-MM'),
+        ]
+    )
+    # currency = models.CharField(max_length=4)
+    # tna = models.FloatField()
+    # type = models.CharField(max_length=9)
