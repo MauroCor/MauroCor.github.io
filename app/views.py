@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
@@ -8,12 +9,14 @@ from collections import defaultdict
 from dateutil.relativedelta import relativedelta
 from rest_framework.permissions import IsAuthenticated
 
+
 class FixedCostListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         fixed_costs = FixedCost.objects.filter(user=request.user)
-        serialized_data = FixedCostSerializer(fixed_costs, many=True, context={'request': request}).data
+        serialized_data = FixedCostSerializer(
+            fixed_costs, many=True, context={'request': request}).data
 
         grouped_data = defaultdict(lambda: {"fixedCost": [], "total": 0})
 
@@ -25,7 +28,7 @@ class FixedCostListView(APIView):
             while current_date <= date_to:
                 month_key = current_date.strftime("%Y-%m")
                 price = int(item['price'])
-                
+
                 grouped_data[month_key]["fixedCost"].append({
                     "name": item['name'],
                     "price": price,
@@ -81,13 +84,14 @@ class FixedCostListView(APIView):
         return Response(response_data)
 
     def post(self, request):
-            request.data['user'] = request.user.id
+        request.data['user'] = request.user.id
 
-            serializer = FixedCostSerializer(data=request.data, context={'request': request})
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = FixedCostSerializer(
+            data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request):
         new_data = request.data
@@ -101,30 +105,32 @@ class FixedCostListView(APIView):
             date_from=new_data['date_from'],
             user=request.user
         ).first()
-        
+
         if existing_record:
             if new_date_to < new_data['date_from']:
                 existing_record.delete()
                 return Response({"detail": "Element deleted."}, status=status.HTTP_204_NO_CONTENT)
-  
-            serializer = FixedCostSerializer(existing_record, data={'date_to': new_date_to}, partial=True, context={'request': request})
+
+            serializer = FixedCostSerializer(existing_record, data={
+                                             'date_to': new_date_to}, partial=True, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"detail": "Element not found."}, status=status.HTTP_404_NOT_FOUND)
-    
+
     def put(self, request):
         new_data = request.data
         existing_record = FixedCost.objects.filter(
             name=new_data['name'],
             date_from=new_data['date_from'],
         ).first()
-        
+
         # Si encontramos un registro con los mismos name y date_from actualizar ese registro
         if existing_record:
-            serializer = FixedCostSerializer(existing_record, data=new_data, partial=True, context={'request': request})
+            serializer = FixedCostSerializer(
+                existing_record, data=new_data, partial=True, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -134,7 +140,8 @@ class FixedCostListView(APIView):
         existing_fixed_costs = FixedCost.objects.filter(name=new_data['name'])
         for fixed_cost in existing_fixed_costs:
             if fixed_cost.date_to >= new_data['date_from']:
-                fixed_cost.date_to = (datetime.strptime(new_data['date_from'], "%Y-%m") - relativedelta(months=1)).strftime("%Y-%m")
+                fixed_cost.date_to = (datetime.strptime(
+                    new_data['date_from'], "%Y-%m") - relativedelta(months=1)).strftime("%Y-%m")
                 fixed_cost.save()
 
         return self.post(request)
@@ -145,7 +152,8 @@ class IncomeListView(APIView):
 
     def get(self, request):
         income = Income.objects.filter(user=request.user)
-        serialized_data = IncomeSerializer(income, many=True, context={'request': request}).data
+        serialized_data = IncomeSerializer(
+            income, many=True, context={'request': request}).data
 
         grouped_data = defaultdict(lambda: {"income": [], "total": 0})
 
@@ -158,7 +166,7 @@ class IncomeListView(APIView):
             while current_date <= date_to:
                 month_key = current_date.strftime("%Y-%m")
                 price = int(item['price'])
-                
+
                 # Agregar el registro al mes correspondiente y sumar su precio al total del mes
                 grouped_data[month_key]["income"].append({
                     "name": item['name'],
@@ -182,12 +190,13 @@ class IncomeListView(APIView):
         return Response(response_data)
 
     def post(self, request):
-            request.data['user'] = request.user.id
-            serializer = IncomeSerializer(data=request.data, context={'request': request})
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        request.data['user'] = request.user.id
+        serializer = IncomeSerializer(
+            data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request):
         new_data = request.data
@@ -201,20 +210,21 @@ class IncomeListView(APIView):
             date_from=new_data['date_from'],
             user=request.user
         ).first()
-        
+
         if existing_record:
             if new_date_to < new_data['date_from']:
                 existing_record.delete()
                 return Response({"detail": "Element deleted."}, status=status.HTTP_204_NO_CONTENT)
-  
-            serializer = IncomeSerializer(existing_record, data={'date_to': new_date_to}, partial=True, context={'request': request})
+
+            serializer = IncomeSerializer(existing_record, data={
+                                          'date_to': new_date_to}, partial=True, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"detail": "element not found."}, status=status.HTTP_404_NOT_FOUND)
-    
+
     def put(self, request):
         new_data = request.data
 
@@ -225,7 +235,8 @@ class IncomeListView(APIView):
 
         # Si encontramos un registro con los mismos name y date_from actualizar ese registro
         if existing_record:
-            serializer = IncomeSerializer(existing_record, data=new_data, partial=True, context={'request': request})
+            serializer = IncomeSerializer(
+                existing_record, data=new_data, partial=True, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -235,17 +246,20 @@ class IncomeListView(APIView):
         existing_incomes = Income.objects.filter(name=new_data['name'])
         for income in existing_incomes:
             if income.date_to >= new_data['date_from']:
-                income.date_to = (datetime.strptime(new_data['date_from'], "%Y-%m") - relativedelta(months=1)).strftime("%Y-%m")
+                income.date_to = (datetime.strptime(
+                    new_data['date_from'], "%Y-%m") - relativedelta(months=1)).strftime("%Y-%m")
                 income.save()
 
         return self.post(request)
+
 
 class CardSpendListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         card_spend = CardSpend.objects.filter(user=request.user)
-        serialized_data = CardSpendSerializer(card_spend, many=True, context={'request': request}).data
+        serialized_data = CardSpendSerializer(
+            card_spend, many=True, context={'request': request}).data
 
         grouped_data = defaultdict(lambda: {"cardSpend": [], "total": 0})
 
@@ -257,7 +271,7 @@ class CardSpendListView(APIView):
             # Generar cuotas para cada mes dentro del rango
             for fee_num in range(1, fees + 1):
                 month_key = date_from.strftime("%Y-%m")
-                
+
                 grouped_data[month_key]["cardSpend"].append({
                     "id": item['id'],
                     "name": item['name'],
@@ -280,12 +294,13 @@ class CardSpendListView(APIView):
         return Response(response_data)
 
     def post(self, request):
-            request.data['user'] = request.user.id
-            serializer = CardSpendSerializer(data=request.data, context={'request': request})
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        request.data['user'] = request.user.id
+        serializer = CardSpendSerializer(
+            data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         try:
@@ -294,13 +309,15 @@ class CardSpendListView(APIView):
             return Response({'message': 'Card spend deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except CardSpend.DoesNotExist:
             return Response({'error': 'Card spend not found'}, status=status.HTTP_404_NOT_FOUND)
-        
+
+
 class SavingListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         saving = Saving.objects.filter(user=request.user)
-        serialized_data = SavingSerializer(saving, many=True, context={'request': request}).data
+        serialized_data = SavingSerializer(
+            saving, many=True, context={'request': request}).data
 
         grouped_data = defaultdict(lambda: {"saving": [], "total": 0})
 
@@ -313,7 +330,7 @@ class SavingListView(APIView):
                 month_key = current_date.strftime("%Y-%m")
                 invested = int(item['invested'])
                 obtained = int(item['obtained'])
-                
+
                 grouped_data[month_key]["saving"].append({
                     "id": item['id'],
                     "name": item['name'],
@@ -322,12 +339,12 @@ class SavingListView(APIView):
                     "date_from": item['date_from'],
                     "date_to": item['date_to']
                 })
-                
+
                 if current_date == date_to:
                     grouped_data[month_key]["total"] += obtained
                 else:
                     grouped_data[month_key]["total"] += invested
-                
+
                 current_date += relativedelta(months=1)
 
         response_data = sorted([
@@ -342,12 +359,13 @@ class SavingListView(APIView):
         return Response(response_data)
 
     def post(self, request):
-            request.data['user'] = request.user.id
-            serializer = SavingSerializer(data=request.data, context={'request': request})
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        request.data['user'] = request.user.id
+        serializer = SavingSerializer(
+            data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         try:
@@ -356,3 +374,14 @@ class SavingListView(APIView):
             return Response({'message': 'Saving deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except CardSpend.DoesNotExist:
             return Response({'error': 'Saving not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class UserListView(APIView):
+
+    def get(self, request):
+        user = request.user
+        return JsonResponse({
+            'username': user.username,
+            'email': user.email,
+            'full_name': user.get_full_name()
+        })
