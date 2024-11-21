@@ -331,16 +331,19 @@ class SavingListView(APIView):
                 invested = int(item['invested'])
                 obtained = int(item['obtained'])
 
+                liquid = current_date == date_to
+
                 grouped_data[month_key]["saving"].append({
                     "id": item['id'],
                     "name": item['name'],
                     "invested": invested,
                     "obtained": obtained,
                     "date_from": item['date_from'],
-                    "date_to": item['date_to']
+                    "date_to": item['date_to'],
+                    "liquid": liquid
                 })
 
-                if current_date == date_to:
+                if liquid:
                     grouped_data[month_key]["total"] += obtained
                 else:
                     grouped_data[month_key]["total"] += invested
