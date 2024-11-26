@@ -57,7 +57,7 @@ class Saving(models.Model):
     name = models.CharField(max_length=20)
     type = models.CharField(max_length=4)
     invested = models.DecimalField(max_digits=9, decimal_places=0)
-    obtained = models.DecimalField(max_digits=9, decimal_places=0)
+    obtained = models.DecimalField(max_digits=9, decimal_places=0, null=True, blank=True)
     date_from = models.CharField(
         max_length=7,
         validators=[
