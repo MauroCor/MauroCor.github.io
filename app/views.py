@@ -326,7 +326,13 @@ class SavingListView(APIView):
             date_to = datetime.strptime(item['date_to'], "%Y-%m")
             current_date = date_from
             previous_obtained = None
-            tna = float(item.get('tna', 0)) / 100 if item['type'] == 'flex' else (int(item['obtained']) / int(item['invested']) - 1) * 12
+            tna = 0
+            
+            if item['type'] == 'flex':
+                tna = float(item.get('tna'))
+            elif item['type'] == 'fijo':
+                months = (datetime.strptime(item['date_to'], "%Y-%m").year - datetime.strptime(item['date_from'], "%Y-%m").year) * 12 + datetime.strptime(item['date_to'], "%Y-%m").month - datetime.strptime(item['date_from'], "%Y-%m").month
+                tna = round(((int(item['obtained']) / int(item['invested'])) - 1) / months * 12 * 100, 0)
             
             while current_date <= date_to:
                 month_key = current_date.strftime("%Y-%m")
@@ -351,7 +357,7 @@ class SavingListView(APIView):
                     "obtained": int(obtained),
                     "date_from": item['date_from'],
                     "date_to": item['date_to'],
-                    "tna": tna*100,
+                    "tna": tna,
                     "liquid": liquid
                 })
 
