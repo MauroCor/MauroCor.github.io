@@ -324,30 +324,45 @@ class SavingListView(APIView):
         for item in serialized_data:
             date_from = datetime.strptime(item['date_from'], "%Y-%m")
             date_to = datetime.strptime(item['date_to'], "%Y-%m")
-
             current_date = date_from
+            previous_obtained = None
+            tna = float(item.get('tna', 0)) / 100 if item['type'] == 'flex' else (int(item['obtained']) / int(item['invested']) - 1) * 12
+            
             while current_date <= date_to:
                 month_key = current_date.strftime("%Y-%m")
                 invested = int(item['invested'])
-                obtained = int(item['obtained'])
 
-                liquid = current_date == date_to
+                if item['type'] == 'fijo':
+                    liquid = current_date == date_to
+                    obtained = int(item['obtained']) if liquid else 0
+                elif item['type'] == 'flex':
+                    liquid = True
+                    if previous_obtained is not None:
+                        obtained = previous_obtained + previous_obtained * (tna / 12)
+                    else:
+                        obtained = invested
 
+                # Agregar información al grupo
                 grouped_data[month_key]["saving"].append({
                     "id": item['id'],
                     "name": item['name'],
+                    "type": item['type'],
                     "invested": invested,
-                    "obtained": obtained,
+                    "obtained": int(obtained),
                     "date_from": item['date_from'],
                     "date_to": item['date_to'],
+                    "tna": tna*100,
                     "liquid": liquid
                 })
 
+                # Calcular total del mes
                 if liquid:
-                    grouped_data[month_key]["total"] += obtained
+                    grouped_data[month_key]["total"] += int(obtained)
                 else:
                     grouped_data[month_key]["total"] += invested
 
+                # Actualizar valores
+                previous_obtained = obtained
                 current_date += relativedelta(months=1)
 
         response_data = sorted([
@@ -378,6 +393,28 @@ class SavingListView(APIView):
         except CardSpend.DoesNotExist:
             return Response({'error': 'Saving not found'}, status=status.HTTP_404_NOT_FOUND)
 
+    def patch(self, request, pk):
+        new_data = request.data
+        new_date_to = new_data.get('date_to')
+
+        if not new_date_to:
+            return Response({"detail": "'date_to' is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        existing_record = Saving.objects.get(pk=pk, user=request.user)
+
+        if existing_record:
+            if new_date_to < new_data['date_from']:
+                existing_record.delete()
+                return Response({"detail": "Element deleted."}, status=status.HTTP_204_NO_CONTENT)
+
+            serializer = SavingSerializer(existing_record, data={
+                                          'date_to': new_date_to}, partial=True, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"detail": "element not found."}, status=status.HTTP_404_NOT_FOUND)
 
 class UserListView(APIView):
 

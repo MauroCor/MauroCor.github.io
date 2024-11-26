@@ -88,5 +88,23 @@ class CardSpendSerializer(serializers.ModelSerializer):
 class SavingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Saving
-        fields = ('id', 'name', 'invested', 'obtained',
-                  'date_from', 'date_to', 'user')
+        fields = ('id', 'name', 'type', 'invested', 'obtained',
+                  'date_from', 'date_to', 'user', 'tna')
+        extra_kwargs = {
+            'tna': {'required': False, 'allow_null': True},
+            'obtained': {'required': False, 'allow_null': True},
+            'date_to': {'required': False, 'allow_null': True}
+        }
+
+    def validate(self, data):
+        if self.context.get('request') and self.context['request'].method != 'PATCH':
+            date_from = datetime.strptime(data.get('date_from'), "%Y-%m")
+            date_to = data.get('date_to')
+            if date_to:
+                date_to = datetime.strptime(date_to, "%Y-%m")
+            else:
+                # Si date_to = null, asumir un año después de date_from
+                date_to = date_from.replace(year=date_from.year + 1)
+                data['date_to'] = date_to.strftime("%Y-%m")
+
+        return data
