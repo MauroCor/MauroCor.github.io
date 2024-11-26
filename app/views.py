@@ -326,25 +326,22 @@ class SavingListView(APIView):
             date_to = datetime.strptime(item['date_to'], "%Y-%m")
             current_date = date_from
             previous_obtained = None
-            tna = 0
-            
-            if item['type'] == 'flex':
-                tna = float(item.get('tna'))
-            elif item['type'] == 'fijo':
-                months = (datetime.strptime(item['date_to'], "%Y-%m").year - datetime.strptime(item['date_from'], "%Y-%m").year) * 12 + datetime.strptime(item['date_to'], "%Y-%m").month - datetime.strptime(item['date_from'], "%Y-%m").month
-                tna = round(((int(item['obtained']) / int(item['invested'])) - 1) / months * 12 * 100, 0)
-            
+
             while current_date <= date_to:
                 month_key = current_date.strftime("%Y-%m")
                 invested = int(item['invested'])
 
                 if item['type'] == 'fijo':
+                    months = (datetime.strptime(item['date_to'], "%Y-%m").year - datetime.strptime(item['date_from'], "%Y-%m").year) * 12 + datetime.strptime(item['date_to'], "%Y-%m").month - datetime.strptime(item['date_from'], "%Y-%m").month
+                    tna = round(((int(item['obtained']) / int(item['invested'])) - 1) / months * 12 * 100, 0)
                     liquid = current_date == date_to
                     obtained = int(item['obtained']) if liquid else 0
+                
                 elif item['type'] == 'flex':
                     liquid = True
+                    tna = float(item['tna'])
                     if previous_obtained is not None:
-                        obtained = previous_obtained + previous_obtained * (tna / 12)
+                        obtained = previous_obtained + previous_obtained * (tna / 12 / 100)
                     else:
                         obtained = invested
 
