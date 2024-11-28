@@ -8,6 +8,7 @@ from app.serializers import CardSpendSerializer, FixedCostSerializer, IncomeSeri
 from collections import defaultdict
 from dateutil.relativedelta import relativedelta
 from rest_framework.permissions import IsAuthenticated
+import yfinance as yf
 
 
 class FixedCostListView(APIView):
@@ -325,18 +326,26 @@ class SavingListView(APIView):
             date_from = datetime.strptime(item['date_from'], "%Y-%m")
             date_to = datetime.strptime(item['date_to'], "%Y-%m")
             current_date = date_from
+            
+            # var
             previous_obtained = None
+            price = None
+            previous_price = None
+            searched_tickers = {}
 
             while current_date <= date_to:
                 month_key = current_date.strftime("%Y-%m")
                 invested = int(item['invested'])
 
                 if item['type'] == 'fijo':
-                    months = (datetime.strptime(item['date_to'], "%Y-%m").year - datetime.strptime(item['date_from'], "%Y-%m").year) * 12 + datetime.strptime(item['date_to'], "%Y-%m").month - datetime.strptime(item['date_from'], "%Y-%m").month
-                    tna = round(((int(item['obtained']) / int(item['invested'])) - 1) / months * 12 * 100, 0)
+                    months = (datetime.strptime(item['date_to'], "%Y-%m").year - datetime.strptime(item['date_from'], "%Y-%m").year) * \
+                        12 + datetime.strptime(item['date_to'], "%Y-%m").month - datetime.strptime(
+                            item['date_from'], "%Y-%m").month
+                    tna = round(
+                        ((int(item['obtained']) / int(item['invested'])) - 1) / months * 12 * 100, 0)
                     liquid = current_date == date_to
                     obtained = int(item['obtained']) if liquid else 0
-                
+
                 elif item['type'] == 'flex':
                     liquid = True
                     tna = float(item['tna'])
@@ -344,6 +353,28 @@ class SavingListView(APIView):
                         obtained = previous_obtained + previous_obtained * (tna / 12 / 100)
                     else:
                         obtained = invested
+
+                elif item['type'] == 'var':
+                    liquid = current_date == date_to
+                    ticker = item['name']
+                    
+                    if ticker in searched_tickers:
+                        history_prices = searched_tickers[ticker]
+                        price = history_prices.get(month_key, previous_price)
+                        obtained = price * int(item['qty'])
+                    else:
+                        history_prices = PricesListView.get_historical_prices(self, ticker, month_key)
+                        
+                        if history_prices == 0:
+                            searched_tickers[ticker] = {}
+                            obtained = 0
+                        else:
+                            searched_tickers[ticker] = history_prices
+                            price = history_prices.get(month_key, previous_price)
+                            obtained = price * int(item['qty'])
+
+                    tna = (obtained - invested) * 100 / invested
+
 
                 # Agregar información al grupo
                 grouped_data[month_key]["saving"].append({
@@ -354,17 +385,19 @@ class SavingListView(APIView):
                     "obtained": int(obtained),
                     "date_from": item['date_from'],
                     "date_to": item['date_to'],
-                    "tna": tna,
+                    "tna": round(tna,1),
+                    "qty": item['qty'],
                     "liquid": liquid
                 })
 
                 # Calcular total del mes
-                if liquid:
+                if liquid or item['type'] == 'var':
                     grouped_data[month_key]["total"] += int(obtained)
                 else:
                     grouped_data[month_key]["total"] += invested
 
                 # Actualizar valores
+                previous_price = price
                 previous_obtained = obtained
                 current_date += relativedelta(months=1)
 
@@ -428,3 +461,26 @@ class UserListView(APIView):
             'email': user.email,
             'full_name': user.get_full_name()
         })
+
+
+class PricesListView(APIView):
+
+    def get_historical_prices(self, ticker, date_from):
+        try:
+            start_date = datetime.strptime(date_from, "%Y-%m")
+            delta_months = (datetime.now().year - start_date.year) * 12 + datetime.now().month - start_date.month
+
+            period = '1mo' if delta_months <= 1 else '3mo' if delta_months <= 3 else '6mo' if delta_months <= 6 else '1y' if delta_months <= 12 else '2y'
+            stock = yf.Ticker(ticker)
+            price_data = stock.history(period=period)
+            
+            if price_data.empty:return 0
+
+            df = price_data.resample('ME').last()[['Close']]
+            df.reset_index(inplace=True)
+
+            historical_prices = {row['Date'].strftime('%Y-%m'): row['Close'] for _, row in df.iterrows()}
+
+            return historical_prices
+        except Exception:
+            return 0
