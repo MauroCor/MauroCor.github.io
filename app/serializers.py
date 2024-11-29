@@ -110,4 +110,20 @@ class SavingSerializer(serializers.ModelSerializer):
                 date_to = date_from.replace(year=date_from.year + 1)
                 data['date_to'] = date_to.strftime("%Y-%m")
 
+            instance_id = self.instance.id if self.instance else None
+            user_id = data.get('user')
+
+            if self.context['request'].method != 'PUT':
+                overlapping_costs = Saving.objects.filter(
+                    user_id=user_id,
+                    name=data['name'],
+                ).exclude(id=instance_id).filter(
+                    Q(date_from__lte=data['date_to']) & Q(
+                        date_to__gte=data['date_from'])
+                )
+
+                if overlapping_costs.exists() and data['type'] != 'fijo':
+                    raise serializers.ValidationError(
+                        f"'{data['name']}' already exist between these dates."
+                    )
         return data

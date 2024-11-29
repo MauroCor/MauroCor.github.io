@@ -371,6 +371,7 @@ class SavingListView(APIView):
                         else:
                             searched_tickers[ticker] = history_prices
                             price = history_prices.get(month_key, previous_price)
+                            if price == None: price = invested
                             obtained = price * int(item['qty'])
 
                     tna = (obtained - invested) * 100 / invested
@@ -451,6 +452,35 @@ class SavingListView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"detail": "element not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+    def put(self, request):
+        new_data = request.data
+        if new_data['type'] == 'flex' or new_data['type'] == 'var':
+            existing_record = Saving.objects.filter(
+                name=new_data['name'],
+                type=new_data['type'],
+                date_from=new_data['date_from'],
+            ).first()
+
+            if existing_record:
+                serializer = SavingSerializer(
+                    existing_record, data=new_data, partial=True, context={'request': request})
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            # Modificar los registros anteriores para evitar la superposición de fechas
+            existing_savings = Saving.objects.filter(name=new_data['name'])
+            for saving in existing_savings:
+                if saving.date_to >= new_data['date_from']:
+                    saving.date_to = (datetime.strptime(
+                        new_data['date_from'], "%Y-%m") - relativedelta(months=1)).strftime("%Y-%m")
+                    saving.save()
+
+            return self.post(request)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserListView(APIView):
 
