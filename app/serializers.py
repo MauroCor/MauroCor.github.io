@@ -2,7 +2,7 @@ from rest_framework import serializers
 from datetime import datetime
 
 from app.models import CardSpend, FixedCost, Income, Saving
-
+from django.db.models import Q
 
 class FixedCostSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,9 +31,10 @@ class FixedCostSerializer(serializers.ModelSerializer):
                 overlapping_costs = FixedCost.objects.filter(
                     user_id=user_id,
                     name=data['name'],
-                    date_from__lte=date_to,
-                    date_to__gte=date_from
-                ).exclude(id=instance_id)
+                ).exclude(id=instance_id).filter(
+                    Q(date_from__lte=data['date_to']) & Q(
+                        date_to__gte=data['date_from'])
+                )
 
                 if overlapping_costs.exists():
                     raise serializers.ValidationError(
@@ -68,9 +69,10 @@ class IncomeSerializer(serializers.ModelSerializer):
                 overlapping_costs = Income.objects.filter(
                     user_id=user_id,
                     name=data['name'],
-                    date_from__lte=date_to,
-                    date_to__gte=date_from
-                ).exclude(id=instance_id)
+                ).exclude(id=instance_id).filter(
+                    Q(date_from__lte=data['date_to']) & Q(
+                        date_to__gte=data['date_from'])
+                )
 
                 if overlapping_costs.exists():
                     raise serializers.ValidationError(
