@@ -91,7 +91,7 @@ class SavingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Saving
         fields = ('id', 'name', 'type', 'invested', 'obtained',
-                  'date_from', 'date_to', 'user', 'tna', 'qty')
+                  'date_from', 'date_to', 'user', 'tna', 'qty', 'ccy')
         extra_kwargs = {
             'qty': {'required': False, 'allow_null': True},
             'tna': {'required': False, 'allow_null': True},

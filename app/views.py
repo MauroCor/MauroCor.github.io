@@ -20,6 +20,7 @@ class FixedCostListView(APIView):
             fixed_costs, many=True, context={'request': request}).data
 
         grouped_data = defaultdict(lambda: {"fixedCost": [], "total": 0})
+        exchg_rate = request.query_params.get('exchg_rate', 0)
 
         for item in serialized_data:
             date_from = datetime.strptime(item['date_from'], "%Y-%m")
@@ -40,7 +41,6 @@ class FixedCostListView(APIView):
                     grouped_data[month_key]["total"] += price
                     current_date += relativedelta(months=1)
                 else:
-                    exchg_rate = request.query_params.get('exchg_rate')
                     price = int(item['price']) * int(exchg_rate)
                     grouped_data[month_key]["fixedCost"].append({
                         "name": item['name'],
@@ -173,6 +173,7 @@ class IncomeListView(APIView):
             income, many=True, context={'request': request}).data
 
         grouped_data = defaultdict(lambda: {"income": [], "total": 0})
+        exchg_rate = request.query_params.get('exchg_rate', 0)
 
         for item in serialized_data:
             date_from = datetime.strptime(item['date_from'], "%Y-%m")
@@ -194,7 +195,6 @@ class IncomeListView(APIView):
                     grouped_data[month_key]["total"] += price
                     current_date += relativedelta(months=1)
                 else:
-                    exchg_rate = request.query_params.get('exchg_rate')
                     price = int(item['price']) * int(exchg_rate)
                     grouped_data[month_key]["income"].append({
                         "name": item['name'],
@@ -351,6 +351,7 @@ class SavingListView(APIView):
             saving, many=True, context={'request': request}).data
 
         grouped_data = defaultdict(lambda: {"saving": [], "total": 0})
+        exchg_rate = request.query_params.get('exchg_rate', 0)
 
         for item in serialized_data:
             date_from = datetime.strptime(item['date_from'], "%Y-%m")
@@ -413,6 +414,7 @@ class SavingListView(APIView):
                     "name": item['name'],
                     "type": item['type'],
                     "invested": invested,
+                    "ccy": item['ccy'],
                     "obtained": int(obtained),
                     "date_from": item['date_from'],
                     "date_to": item['date_to'],
@@ -423,9 +425,16 @@ class SavingListView(APIView):
 
                 # Calcular total del mes
                 if liquid or item['type'] == 'var':
-                    grouped_data[month_key]["total"] += int(obtained)
+                    if item['ccy'] == 'ARS':
+                        grouped_data[month_key]["total"] += int(obtained)
+                    else:
+                        grouped_data[month_key]["total"] += int(obtained) * int(exchg_rate)
                 else:
-                    grouped_data[month_key]["total"] += invested
+                    if item['ccy'] == 'ARS':
+                        grouped_data[month_key]["total"] += invested
+                    else:
+                        grouped_data[month_key]["total"] += invested * int(exchg_rate)
+
 
                 # Actualizar valores
                 previous_price = price
