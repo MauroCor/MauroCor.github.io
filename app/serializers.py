@@ -7,7 +7,7 @@ from django.db.models import Q
 class FixedCostSerializer(serializers.ModelSerializer):
     class Meta:
         model = FixedCost
-        fields = ('name', 'price', 'date_from', 'date_to', 'user')
+        fields = ('name', 'price', 'date_from', 'date_to', 'user', 'ccy')
         extra_kwargs = {
             'date_to': {'required': False, 'allow_null': True}
         }
@@ -46,7 +46,7 @@ class FixedCostSerializer(serializers.ModelSerializer):
 class IncomeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Income
-        fields = ('name', 'price', 'date_from', 'date_to', 'user')
+        fields = ('name', 'price', 'date_from', 'date_to', 'user', 'ccy')
         extra_kwargs = {
             'date_to': {'required': False, 'allow_null': True}
         }

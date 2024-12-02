@@ -28,16 +28,31 @@ class FixedCostListView(APIView):
             current_date = date_from
             while current_date <= date_to:
                 month_key = current_date.strftime("%Y-%m")
-                price = int(item['price'])
-
-                grouped_data[month_key]["fixedCost"].append({
-                    "name": item['name'],
-                    "price": price,
-                    "date_from": item['date_from'],
-                    "date_to": item['date_to']
-                })
-                grouped_data[month_key]["total"] += price
-                current_date += relativedelta(months=1)
+                if item['ccy'] == 'ARS':
+                    price = int(item['price'])
+                    grouped_data[month_key]["fixedCost"].append({
+                        "name": item['name'],
+                        "ccy": item['ccy'],
+                        "price": price,
+                        "date_from": item['date_from'],
+                        "date_to": item['date_to']
+                    })
+                    grouped_data[month_key]["total"] += price
+                    current_date += relativedelta(months=1)
+                else:
+                    exchg_rate = request.query_params.get('exchg_rate')
+                    price = int(item['price']) * int(exchg_rate)
+                    grouped_data[month_key]["fixedCost"].append({
+                        "name": item['name'],
+                        "ccy": item['ccy'],
+                        "amount": int(item['price']),
+                        "price": price,
+                        "exRate": exchg_rate,
+                        "date_from": item['date_from'],
+                        "date_to": item['date_to']
+                    })
+                    grouped_data[month_key]["total"] += price
+                    current_date += relativedelta(months=1)
 
         # Obtener CardSpend
         card_spends = CardSpend.objects.filter(user=request.user)
@@ -69,6 +84,7 @@ class FixedCostListView(APIView):
             if tarjeta_total > 0:
                 data["fixedCost"].append({
                     "name": "Tarjeta",
+                    "ccy": "ARS",
                     "price": round(tarjeta_total)
                 })
 
@@ -166,17 +182,31 @@ class IncomeListView(APIView):
             current_date = date_from
             while current_date <= date_to:
                 month_key = current_date.strftime("%Y-%m")
-                price = int(item['price'])
-
-                # Agregar el registro al mes correspondiente y sumar su precio al total del mes
-                grouped_data[month_key]["income"].append({
-                    "name": item['name'],
-                    "price": price,
-                    "date_from": item['date_from'],
-                    "date_to": item['date_to']
-                })
-                grouped_data[month_key]["total"] += price
-                current_date += relativedelta(months=1)
+                if item['ccy'] == 'ARS':
+                    price = int(item['price'])
+                    grouped_data[month_key]["income"].append({
+                        "name": item['name'],
+                        "ccy": item['ccy'],
+                        "price": price,
+                        "date_from": item['date_from'],
+                        "date_to": item['date_to']
+                    })
+                    grouped_data[month_key]["total"] += price
+                    current_date += relativedelta(months=1)
+                else:
+                    exchg_rate = request.query_params.get('exchg_rate')
+                    price = int(item['price']) * int(exchg_rate)
+                    grouped_data[month_key]["income"].append({
+                        "name": item['name'],
+                        "ccy": item['ccy'],
+                        "amount": int(item['price']),
+                        "price": price,
+                        "exRate": exchg_rate,
+                        "date_from": item['date_from'],
+                        "date_to": item['date_to']
+                    })
+                    grouped_data[month_key]["total"] += price
+                    current_date += relativedelta(months=1)
 
         # Formato de respuesta agrupado por fecha y ordenado cronológicamente
         response_data = sorted([

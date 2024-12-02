@@ -8,6 +8,7 @@ class FixedCost(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=20)
     price = models.DecimalField(max_digits=9, decimal_places=0)
+    ccy = models.CharField(max_length=4)
     date_from = models.CharField(
         max_length=7,
         validators=[
@@ -26,6 +27,7 @@ class Income(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=20)
     price = models.DecimalField(max_digits=9, decimal_places=0)
+    ccy = models.CharField(max_length=4)
     date_from = models.CharField(
         max_length=7,
         validators=[
@@ -72,4 +74,3 @@ class Saving(models.Model):
     )
     tna = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     qty = models.DecimalField(max_digits=5, decimal_places=0, null=True, blank=True)
-    # currency = models.CharField(max_length=4)
