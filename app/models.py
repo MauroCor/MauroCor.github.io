@@ -74,4 +74,4 @@ class Saving(models.Model):
         ]
     )
     tna = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
-    qty = models.DecimalField(max_digits=5, decimal_places=0, null=True, blank=True)
+    qty = models.DecimalField(max_digits=15, decimal_places=9, null=True, blank=True)

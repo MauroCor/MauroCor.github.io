@@ -392,7 +392,7 @@ class SavingListView(APIView):
                     if ticker in searched_tickers:
                         history_prices = searched_tickers[ticker]
                         price = history_prices.get(month_key, previous_price)
-                        obtained = price * int(item['qty'])
+                        obtained = price * float(item['qty'])
                     else:
                         history_prices = PricesListView.get_historical_prices(self, ticker, month_key)
                         
@@ -403,7 +403,7 @@ class SavingListView(APIView):
                             searched_tickers[ticker] = history_prices
                             price = history_prices.get(month_key, previous_price)
                             if price == None: price = invested
-                            obtained = price * int(item['qty'])
+                            obtained = price * float(item['qty'])
 
                     tna = (obtained - invested) * 100 / invested
 
@@ -424,16 +424,20 @@ class SavingListView(APIView):
                 })
 
                 # Calcular total del mes
-                if liquid or item['type'] == 'var':
-                    if item['ccy'] == 'ARS':
-                        grouped_data[month_key]["total"] += int(obtained)
-                    else:
-                        grouped_data[month_key]["total"] += int(obtained) * int(exchg_rate)
+
+                if item['type'] == 'var':
+                    grouped_data[month_key]["total"] += int(obtained) * int(exchg_rate)
                 else:
-                    if item['ccy'] == 'ARS':
-                        grouped_data[month_key]["total"] += invested
+                    if liquid:
+                        if item['ccy'] == 'ARS':
+                            grouped_data[month_key]["total"] += int(obtained)
+                        else:
+                            grouped_data[month_key]["total"] += int(obtained) * int(exchg_rate)
                     else:
-                        grouped_data[month_key]["total"] += invested * int(exchg_rate)
+                        if item['ccy'] == 'ARS':
+                            grouped_data[month_key]["total"] += invested
+                        else:
+                            grouped_data[month_key]["total"] += invested * int(exchg_rate)
 
 
                 # Actualizar valores
