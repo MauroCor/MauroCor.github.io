@@ -1,4 +1,3 @@
-from ccxt import binance
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,7 +8,7 @@ from app.serializers import CardSpendSerializer, FixedCostSerializer, IncomeSeri
 from collections import defaultdict
 from dateutil.relativedelta import relativedelta
 from rest_framework.permissions import IsAuthenticated
-import yfinance as yf
+import requests
 
 
 class FixedCostListView(APIView):
@@ -382,7 +381,8 @@ class SavingListView(APIView):
                     liquid = True
                     tna = float(item['tna'])
                     if previous_obtained is not None:
-                        obtained = previous_obtained + previous_obtained * (tna / 12 / 100)
+                        obtained = previous_obtained + \
+                            previous_obtained * (tna / 12 / 100)
                     else:
                         obtained = invested
 
@@ -395,15 +395,18 @@ class SavingListView(APIView):
                         price = history_prices.get(month_key, previous_price)
                         obtained = price * float(item['qty'])
                     else:
-                        history_prices = PricesListView.get_historical_prices(self,ticker, month_key)
-                        
+                        history_prices = PricesListView.get_historical_prices(
+                            self, ticker, item.get('crypto', False),month_key)
+
                         if history_prices == 0:
                             searched_tickers[ticker] = {}
                             obtained = 0
                         else:
                             searched_tickers[ticker] = history_prices
-                            price = history_prices.get(month_key, previous_price)
-                            if price == None: price = invested
+                            price = history_prices.get(
+                                month_key, previous_price)
+                            if price == None:
+                                price = invested
                             obtained = price * float(item['qty'])
 
                     tna = (obtained - invested) * 100 / invested
@@ -542,71 +545,91 @@ class UserListView(APIView):
 class PricesListView(APIView):
 
     def get(self, request):
-        ticker = request.query_params.get('tkr', 0)
-        crypto = True if 'CRY-' in ticker else False
+        ticker = request.query_params.get('tkr', '')
+        crypto = request.query_params.get('cripto', False)
         if crypto:
-            try:  # CCXT (Binance)
-                ticker = ticker.split('CRY-')[1]
-                exchange = binance()
-                ohlcv = exchange.fetch_ticker(symbol=f"{ticker}/USDT")
-                if ohlcv:
-                    return JsonResponse({
+            try:  # Binance
+                symbol = f"{ticker}USDT"
+
+                response = requests.get(
+                    f"https://api.binance.com/api/v3/ticker/price?symbol={symbol}")
+                response.raise_for_status()
+
+                json = response.json()
+                if 'price' in json:
+                    data = {
                         "ticker": f"{ticker}/USDT",
-                        "price": ohlcv['close']
-                    })
+                        "price": float(json['price'])
+                    }
+                    return JsonResponse(data)
             except Exception as e:
-                print(f"Error al obtener datos de CCXT: {e}")
+                print(f"Error al obtener datos de Binance: {e}")
         else:
             try:  # Yahoo Finance
-                stock = yf.Ticker(ticker)
-                info = stock.info
-                if 'symbol' in info:
-                    name = info.get('longName', '')
-                    price_data = stock.history(period='1d')
-                    if not price_data.empty:
-                        last_close = price_data['Close'].iloc[-1]
-                        return JsonResponse({
-                            "ticker": ticker,
-                            "name": name,
-                            "price": last_close
-                        })
+                hdrs = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64) AppleWebKit/537.36 Chrome/91.0.4472.124 Safari/537.36'}
+                response = requests.get(
+                    f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?interval=1d", headers=hdrs)
+
+                if response.status_code == 200:
+                    meta = response.json().get("chart", {}).get(
+                        "result", [{}])[0].get("meta", {})
+                    data = {
+                        "ticker": ticker,
+                        "name": meta.get('shortName', ''),
+                        "price": meta.get('regularMarketPrice', '')
+                    }
+                    return JsonResponse(data)
             except Exception as e:
                 print(f"Error al obtener datos de Yahoo Finance: {e}")
         return JsonResponse({})
 
-    def get_historical_prices(self, ticker, date_from):
+    def get_historical_prices(self, ticker, crypto, date_from):
         start_date = datetime.strptime(date_from, "%Y-%m")
-        crypto = True if 'CRY-' in ticker else False
         if crypto:
-            try:  # CCXT (Binance)
-                ticker = ticker.split('CRY-')[1]
-                exchange = binance()
+            try:  # Binance
+                symbol = f"{ticker}USDT"
                 since = int(start_date.timestamp() * 1000)
-                ohlcv = exchange.fetch_ohlcv(f"{ticker}/USDT", '1M', since=since)
-                return {
-                    datetime.utcfromtimestamp(data[0] / 1000).strftime('%Y-%m'): data[4]
-                    for data in ohlcv
+
+                url = f"https://api.binance.com/api/v3/klines"
+                params = {
+                    "symbol": symbol,
+                    "interval": "1M",
+                    "startTime": since
                 }
+
+                response = requests.get(url, params=params)
+                response.raise_for_status()
+
+                data = response.json()
+                result = {}
+                for item in data:
+                    timestamp = int(item[0]) / 1000
+                    close = float(item[4])
+                    date = datetime.utcfromtimestamp(timestamp)
+                    result[date.strftime('%Y-%m')] = close
+                return result
             except Exception as e:
-                print(f"Error al obtener datos de CCXT: {e}")
+                print(f"Error al obtener datos de Binance: {e}")
         else:
             try:  # Yahoo Finance
-                stock = yf.Ticker(ticker)
-                info = stock.info
-                if 'regularMarketPrice' in info:
-                    delta_months = (datetime.now().year - start_date.year) * \
-                        12 + datetime.now().month - start_date.month
-                    period = (
-                        '1mo' if delta_months <= 1 else
-                        '3mo' if delta_months <= 3 else
-                        '6mo' if delta_months <= 6 else
-                        '1y' if delta_months <= 12 else '2y'
-                    )
-                    price_data = stock.history(period=period)
-                    if not price_data.empty:
-                        df = price_data.resample('ME').last()[['Close']]
-                        df.reset_index(inplace=True)
-                        return {row['Date'].strftime('%Y-%m'): row['Close'] for _, row in df.iterrows()}
+                hdrs = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64) AppleWebKit/537.36 Chrome/91.0.4472.124 Safari/537.36'}
+                p1 = int(start_date.timestamp())
+                p2 = int(datetime.now().timestamp())
+                response = requests.get(
+                    f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?interval=1mo&period1={p1}&period2={p2}", headers=hdrs)
+
+                if response.status_code == 200:
+                    data = response.json()
+                    timestamps = data["chart"]["result"][0]["timestamp"]
+                    closes = data["chart"]["result"][0]["indicators"]["quote"][0]["close"]
+
+                    result = {}
+                    for ts, close in zip(timestamps, closes):
+                        date = datetime.utcfromtimestamp(ts)
+                        result[date.strftime('%Y-%m')] = close
+                    return result
             except Exception as e:
                 print(f"Error al obtener datos de Yahoo Finance: {e}")
         return {}
