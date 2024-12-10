@@ -1,3 +1,4 @@
+from ccxt import binance
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -357,7 +358,7 @@ class SavingListView(APIView):
             date_from = datetime.strptime(item['date_from'], "%Y-%m")
             date_to = datetime.strptime(item['date_to'], "%Y-%m")
             current_date = date_from
-            
+
             # var
             previous_obtained = None
             price = None
@@ -388,13 +389,13 @@ class SavingListView(APIView):
                 elif item['type'] == 'var':
                     liquid = current_date == date_to
                     ticker = item['name']
-                    
+
                     if ticker in searched_tickers:
                         history_prices = searched_tickers[ticker]
                         price = history_prices.get(month_key, previous_price)
                         obtained = price * float(item['qty'])
                     else:
-                        history_prices = PricesListView.get_historical_prices(self, ticker, month_key)
+                        history_prices = PricesListView.get_historical_prices(self,ticker, month_key)
                         
                         if history_prices == 0:
                             searched_tickers[ticker] = {}
@@ -407,7 +408,6 @@ class SavingListView(APIView):
 
                     tna = (obtained - invested) * 100 / invested
 
-
                 # Agregar información al grupo
                 grouped_data[month_key]["saving"].append({
                     "id": item['id'],
@@ -418,7 +418,7 @@ class SavingListView(APIView):
                     "obtained": int(obtained),
                     "date_from": item['date_from'],
                     "date_to": item['date_to'],
-                    "tna": round(tna,1),
+                    "tna": round(tna, 1),
                     "qty": item['qty'],
                     "liquid": liquid
                 })
@@ -426,19 +426,21 @@ class SavingListView(APIView):
                 # Calcular total del mes
 
                 if item['type'] == 'var':
-                    grouped_data[month_key]["total"] += int(obtained) * int(exchg_rate)
+                    grouped_data[month_key]["total"] += int(
+                        obtained) * int(exchg_rate)
                 else:
                     if liquid:
                         if item['ccy'] == 'ARS':
                             grouped_data[month_key]["total"] += int(obtained)
                         else:
-                            grouped_data[month_key]["total"] += int(obtained) * int(exchg_rate)
+                            grouped_data[month_key]["total"] += int(
+                                obtained) * int(exchg_rate)
                     else:
                         if item['ccy'] == 'ARS':
                             grouped_data[month_key]["total"] += invested
                         else:
-                            grouped_data[month_key]["total"] += invested * int(exchg_rate)
-
+                            grouped_data[month_key]["total"] += invested * \
+                                int(exchg_rate)
 
                 # Actualizar valores
                 previous_price = price
@@ -495,7 +497,7 @@ class SavingListView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"detail": "element not found."}, status=status.HTTP_404_NOT_FOUND)
-    
+
     def put(self, request):
         new_data = request.data
         if new_data['type'] == 'flex' or new_data['type'] == 'var':
@@ -525,6 +527,7 @@ class SavingListView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UserListView(APIView):
 
     def get(self, request):
@@ -538,22 +541,72 @@ class UserListView(APIView):
 
 class PricesListView(APIView):
 
+    def get(self, request):
+        ticker = request.query_params.get('tkr', 0)
+        crypto = True if 'CRY-' in ticker else False
+        if crypto:
+            try:  # CCXT (Binance)
+                ticker = ticker.split('CRY-')[1]
+                exchange = binance()
+                ohlcv = exchange.fetch_ticker(symbol=f"{ticker}/USDT")
+                if ohlcv:
+                    return JsonResponse({
+                        "ticker": f"{ticker}/USDT",
+                        "price": ohlcv['close']
+                    })
+            except Exception as e:
+                print(f"Error al obtener datos de CCXT: {e}")
+        else:
+            try:  # Yahoo Finance
+                stock = yf.Ticker(ticker)
+                info = stock.info
+                if 'symbol' in info:
+                    name = info.get('longName', '')
+                    price_data = stock.history(period='1d')
+                    if not price_data.empty:
+                        last_close = price_data['Close'].iloc[-1]
+                        return JsonResponse({
+                            "ticker": ticker,
+                            "name": name,
+                            "price": last_close
+                        })
+            except Exception as e:
+                print(f"Error al obtener datos de Yahoo Finance: {e}")
+        return JsonResponse({})
+
     def get_historical_prices(self, ticker, date_from):
-        try:
-            start_date = datetime.strptime(date_from, "%Y-%m")
-            delta_months = (datetime.now().year - start_date.year) * 12 + datetime.now().month - start_date.month
-
-            period = '1mo' if delta_months <= 1 else '3mo' if delta_months <= 3 else '6mo' if delta_months <= 6 else '1y' if delta_months <= 12 else '2y'
-            stock = yf.Ticker(ticker)
-            price_data = stock.history(period=period)
-            
-            if price_data.empty:return 0
-
-            df = price_data.resample('ME').last()[['Close']]
-            df.reset_index(inplace=True)
-
-            historical_prices = {row['Date'].strftime('%Y-%m'): row['Close'] for _, row in df.iterrows()}
-
-            return historical_prices
-        except Exception:
-            return 0
+        start_date = datetime.strptime(date_from, "%Y-%m")
+        crypto = True if 'CRY-' in ticker else False
+        if crypto:
+            try:  # CCXT (Binance)
+                ticker = ticker.split('CRY-')[1]
+                exchange = binance()
+                since = int(start_date.timestamp() * 1000)
+                ohlcv = exchange.fetch_ohlcv(f"{ticker}/USDT", '1M', since=since)
+                return {
+                    datetime.utcfromtimestamp(data[0] / 1000).strftime('%Y-%m'): data[4]
+                    for data in ohlcv
+                }
+            except Exception as e:
+                print(f"Error al obtener datos de CCXT: {e}")
+        else:
+            try:  # Yahoo Finance
+                stock = yf.Ticker(ticker)
+                info = stock.info
+                if 'regularMarketPrice' in info:
+                    delta_months = (datetime.now().year - start_date.year) * \
+                        12 + datetime.now().month - start_date.month
+                    period = (
+                        '1mo' if delta_months <= 1 else
+                        '3mo' if delta_months <= 3 else
+                        '6mo' if delta_months <= 6 else
+                        '1y' if delta_months <= 12 else '2y'
+                    )
+                    price_data = stock.history(period=period)
+                    if not price_data.empty:
+                        df = price_data.resample('ME').last()[['Close']]
+                        df.reset_index(inplace=True)
+                        return {row['Date'].strftime('%Y-%m'): row['Close'] for _, row in df.iterrows()}
+            except Exception as e:
+                print(f"Error al obtener datos de Yahoo Finance: {e}")
+        return {}
