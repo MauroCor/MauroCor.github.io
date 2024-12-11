@@ -590,7 +590,7 @@ class PricesListView(APIView):
                 symbol = f"{ticker}USDT"
                 since = int(start_date.timestamp() * 1000)
 
-                url = f"https://api.binance.com/api/v3/klines"
+                url = f"https://api.binance.us/api/v3/klines"
                 params = {
                     "symbol": symbol,
                     "interval": "1M",
