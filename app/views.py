@@ -551,9 +551,16 @@ class PricesListView(APIView):
             try:  # Binance
                 symbol = f"{ticker}USDT"
                 hdrs = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64) AppleWebKit/537.36 Chrome/91.0.4472.124 Safari/537.36'}
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/91.0.4472.124 Safari/537.36',
+                    'Accept': 'application/json',
+                    'Connection': 'keep-alive',
+                    'Cache-Control': 'no-cache'
+                }
+                prx = {
+                    "http": "190.103.177.131:80",
+                }
                 response = requests.get(
-                    f"https://api.binance.com/api/v3/ticker/price?symbol={symbol}", headers=hdrs)
+                    f"https://api.binance.com/api/v3/ticker/price?symbol={symbol}", headers=hdrs, proxies=prx)
                 response.raise_for_status()
 
                 json = response.json()
