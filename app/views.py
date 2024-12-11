@@ -560,7 +560,7 @@ class PricesListView(APIView):
                     "http": "190.103.177.131:80",
                 }
                 response = requests.get(
-                    f"https://api.binance.com/api/v3/ticker/price?symbol={symbol}", headers=hdrs, proxies=prx)
+                    f"https://api.binance.us/api/v3/ticker/price?symbol={symbol}", headers=hdrs, proxies=prx)
                 response.raise_for_status()
 
                 json = response.json()
