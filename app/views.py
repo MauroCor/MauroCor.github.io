@@ -546,8 +546,8 @@ class PricesListView(APIView):
 
     def get(self, request):
         ticker = request.query_params.get('tkr', '')
-        crypto = request.query_params.get('cripto', False)
-        if crypto:
+        crypto = request.query_params.get('cripto', 'false')
+        if crypto == 'true':
             try:  # Binance
                 symbol = f"{ticker}USDT"
 
