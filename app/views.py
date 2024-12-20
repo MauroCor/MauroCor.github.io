@@ -372,6 +372,7 @@ class SavingListView(APIView):
                     months = (datetime.strptime(item['date_to'], "%Y-%m").year - datetime.strptime(item['date_from'], "%Y-%m").year) * \
                         12 + datetime.strptime(item['date_to'], "%Y-%m").month - datetime.strptime(
                             item['date_from'], "%Y-%m").month
+                    months = 1 if months == 0 else months
                     tna = round(
                         ((int(item['obtained']) / int(item['invested'])) - 1) / months * 12 * 100, 0)
                     liquid = current_date == date_to
